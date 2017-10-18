@@ -5,6 +5,7 @@
 
     <groupId>com.ece651</groupId>
     <artifactId>handymen-server</artifactId>
+    <packaging>war</packaging>
     <version>0.0.1-SNAPSHOT</version>
 
     <!-- Inherit defaults from Spring Boot -->
@@ -20,6 +21,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+	<dependency>
+       	    <groupId>org.springframework.boot</groupId>
+	    <artifactId>spring-boot-starter-tomcat</artifactId>
+	    <scope>provided</scope>
+	</dependency>
+
     </dependencies>
 
     <!-- Package as an executable jar -->
