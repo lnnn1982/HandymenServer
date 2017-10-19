@@ -1,10 +1,10 @@
 package com.ece651.handymenserver.Domain;
 
 public class HandyMenUsrServiceInfo {
-    private String usrName;
-	private HandyMenSvrTypeEnum type;
-	private String area;
-	private String description;
+    private String usrName = "";
+	private HandyMenSvrTypeEnum type = HandyMenSvrTypeEnum.NOSERVICE_TYPE;
+	private String area = "";
+	private String description = "";
 	//private attachments;
 	
 	public HandyMenUsrServiceInfo(HandyMenSvrTypeEnum type, String usrName) {

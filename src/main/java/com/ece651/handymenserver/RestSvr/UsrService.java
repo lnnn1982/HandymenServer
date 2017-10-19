@@ -36,7 +36,8 @@ public class UsrService {
 		
 		try {
 			HandyMenUserInfo user = new HandyMenUserInfo(usrName);
-			user.setPhoneNumList(Arrays.asList(phoneNumList.split("-")));
+			//user.setPhoneNumList(Arrays.asList(phoneNumList.split("-")));
+			user.setPhoneNumList(phoneNumList);
 			user.setEmailAddr(emailAddr);
 			usrInfoDao.addUser(user);
 			

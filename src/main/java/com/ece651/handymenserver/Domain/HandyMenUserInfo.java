@@ -6,14 +6,13 @@ import java.util.List;
 public class HandyMenUserInfo {
 	public static final String GUEST_USR_NAME = "Guest";
 	
-    private String usrName;
-    private String emailAddr;
-    private List<String> phoneNumList;
-    private HandyMenSvrTypeEnum svrType;
+    private String usrName = "";
+    private String emailAddr = "";
+    private String phoneNumList = "";
+    private HandyMenSvrTypeEnum svrType = HandyMenSvrTypeEnum.NOSERVICE_TYPE;
     
 	public HandyMenUserInfo(String usrName) {
 		this.usrName = usrName;
-		this.svrType = HandyMenSvrTypeEnum.NOSERVICE_TYPE;
 	}
 	
 	public String getUsrName() {
@@ -28,12 +27,12 @@ public class HandyMenUserInfo {
 		return emailAddr;
 	}
 	
-	public void setPhoneNumList(List<String> phNums) {
+	public void setPhoneNumList(String phNums) {
 		this.phoneNumList = phNums;
 	}
 	
-	public List<String> getPhoneNumList() {
-		return Collections.unmodifiableList(this.phoneNumList);
+	public String getPhoneNumList() {
+		return this.phoneNumList;
 	}
 	
 	public void setSvrType(HandyMenSvrTypeEnum svrType) {

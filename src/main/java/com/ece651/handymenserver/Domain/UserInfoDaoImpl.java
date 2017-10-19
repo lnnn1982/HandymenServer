@@ -12,11 +12,11 @@ public class UserInfoDaoImpl implements UserInfoDao{
     final private String tblName = "HandyMenUserInfo";
 	
     public void addUser(HandyMenUserInfo user) throws Exception {
-    	String insertSql = "INSERT INTO " + tblName + "(usrName, type, emailAddr, "
-    			+ "phoneNumList) VALUES (?, ?, ?, ?)";
+    	String insertSql = "INSERT INTO " + tblName + "(usrName, emailAddr, "
+    			+ "phoneNumList, svrType) VALUES (?, ?, ?, ?)";
     	jdbcTemplate.update(insertSql, new Object[]{
     			user.getUsrName(), user.getEmailAddr(),
-    			user.getPhoneNumList()});
+    			user.getPhoneNumList(), user.getSvrType().getSvrTypeName()});
     }
 
     public void updateUser(HandyMenUserInfo user) throws Exception {
