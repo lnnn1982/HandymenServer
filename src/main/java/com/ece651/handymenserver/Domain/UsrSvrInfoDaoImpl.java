@@ -1,7 +1,11 @@
 package com.ece651.handymenserver.Domain;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,7 +31,18 @@ public class UsrSvrInfoDaoImpl implements UsrSvrInfoDao{
     	return (HandyMenUsrServiceInfo) jdbcTemplate.queryForObject(
     			sql,
                 new Object[]{usrName},   
-                HandyMenUsrServiceInfo.class);
+				new RowMapper(){
+    			    @Override
+    			    public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+    			    	HandyMenUsrServiceInfo user = 
+    			        new HandyMenUsrServiceInfo(
+    			        		HandyMenSvrTypeEnum.fromStr(rs.getString("type")),
+    			        		rs.getString("usrName"));
+    				    user.setDescription(rs.getString("description"));
+    				    user.setArea(rs.getString("area"));
+    				    return user;
+    			    }
+    		});
     }
 	
 	

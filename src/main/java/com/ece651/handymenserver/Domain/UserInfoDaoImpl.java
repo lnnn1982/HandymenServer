@@ -1,9 +1,12 @@
 package com.ece651.handymenserver.Domain;
 
 import java.util.List;
+import java.sql.*;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.jdbc.core.*;
 
 @Component
 public class UserInfoDaoImpl implements UserInfoDao{
@@ -36,14 +39,21 @@ public class UserInfoDaoImpl implements UserInfoDao{
     	return null;
     }
     
-    public HandyMenUserInfo getUser(String usrName) throws Exception {
-    	String sql = "select * from " + tblName + " where usrName  = ?";
-    	return (HandyMenUserInfo) jdbcTemplate.queryForObject(
-    			sql,
-                new Object[]{usrName},   
-                HandyMenUserInfo.class);
-    }
-	
+	public HandyMenUserInfo getUser(String usrName) throws Exception {
+		String sql = "select * from " + tblName + " where usrName  = ?";
+		return (HandyMenUserInfo) jdbcTemplate.queryForObject(sql, 
+				new Object[] { usrName },
+				new RowMapper(){
+			    @Override
+			    public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+				    HandyMenUserInfo user = new HandyMenUserInfo(rs.getString("usrName"));
+				    user.setEmailAddr(rs.getString("emailAddr"));
+				    user.setPhoneNumList(rs.getString("phoneNumList"));
+				    user.setSvrType(HandyMenSvrTypeEnum.fromStr(rs.getString("svrType")));
+				    return user;
+			    }
+		});
+	}
 	
 	
 	
