@@ -17,7 +17,7 @@ public class UsrService {
 	@Autowired
     private UsrSvrInfoDao usrSvrInfoDao;
 	@Autowired
-    private UserInfoDao usrInfoDao;	
+    private HandyMenUserProfileDao usrInfoDao;	
 	
 	
 	@ExceptionHandler(IllegalArgumentException.class)
@@ -27,15 +27,15 @@ public class UsrService {
 	}
 	
 	@RequestMapping("/addUser")
-	HandyMenUserInfo addUser(@RequestParam("usrName") String usrName, 
+	HandyMenUserContactInfo addUser(@RequestParam("usrName") String usrName, 
 			@RequestParam("emailAddr") String emailAddr,
 			@RequestParam("phoneNumList") String phoneNumList) {
-		if(usrName == HandyMenUserInfo.GUEST_USR_NAME) {
+		if(usrName == HandyMenUserContactInfo.GUEST_USR_NAME) {
 			throw new IllegalArgumentException("The usrName is error");
 		}
 		
 		try {
-			HandyMenUserInfo user = new HandyMenUserInfo(usrName);
+			HandyMenUserContactInfo user = new HandyMenUserContactInfo(usrName);
 			//user.setPhoneNumList(Arrays.asList(phoneNumList.split("-")));
 			user.setPhoneNumList(phoneNumList);
 			user.setEmailAddr(emailAddr);
@@ -49,7 +49,7 @@ public class UsrService {
 	}
 	
 	@RequestMapping("/getUser")
-	HandyMenUserInfo getUser(@RequestParam("usrName") String usrName ) {
+	HandyMenUserContactInfo getUser(@RequestParam("usrName") String usrName ) {
 		try {
 			return usrInfoDao.getUser(usrName);
 		} catch (Exception e) {
