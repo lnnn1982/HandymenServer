@@ -5,6 +5,7 @@ public class HandyMenUsrServiceInfo {
 	private HandyMenSvrTypeEnum type = HandyMenSvrTypeEnum.NOSERVICE_TYPE;
 	private String area = "";
 	private String description = "";
+	private String priceRange = "";
 	//private attachments;
 	
 	public HandyMenUsrServiceInfo(HandyMenSvrTypeEnum type, String usrName) {
@@ -36,7 +37,13 @@ public class HandyMenUsrServiceInfo {
     	return description;
     }
 	
-	
+	public void setPriceRange(String range) {
+    	this.priceRange = range;
+    }
+    
+	public String getPriceRange() {
+    	return priceRange;
+    }
 	
 	
 	

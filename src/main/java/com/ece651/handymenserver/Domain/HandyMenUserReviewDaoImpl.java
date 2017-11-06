@@ -34,24 +34,30 @@ public class HandyMenUserReviewDaoImpl implements HandyMenUserReviewDao {
     
     public HandyMenUserReview getUserReview(String usrName, 
     		String reviewUsrName)throws Exception {
-		String sql = "select * from " + reviewTblName + " where usrName  = ? and reviewUsrName = ?";
+		String sql = "select * from " + reviewTblName + 
+				" where usrName  = ? and reviewUsrName = ?";
+		
 		return(HandyMenUserReview)jdbcTemplate.queryForObject(sql, 
 		        new Object[] {usrName},
-			    
-		        new RowMapper(){
-				
-				    @Override
-			        public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-				    	HandyMenUserReview review = new HandyMenUserReview(
-				    			rs.getString("usrName"),
-				    			rs.getString("reviewUsrName"),
-				    			rs.getString("reviewContent"),
-				    			rs.getInt("rank"));
-
-				        return review;
-			        }
-		        }
+		        getRowMapper()
 			);
+    }
+    
+    private RowMapper getRowMapper() {
+    	
+    	return new RowMapper(){
+			
+		    @Override
+	        public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+		    	HandyMenUserReview review = new HandyMenUserReview(
+		    			rs.getString("usrName"),
+		    			rs.getString("reviewUsrName"),
+		    			rs.getString("reviewContent"),
+		    			rs.getInt("rank"));
+
+		        return review;
+	        }
+        };
     }
     
     public void deleteUserReview(String userName, String reviewUsrName)throws Exception {
@@ -60,19 +66,14 @@ public class HandyMenUserReviewDaoImpl implements HandyMenUserReviewDao {
     }
 	
     public List<HandyMenUserReview> listUsersReviewByName(String usrName) throws Exception {
+		String sql = "select * from " + reviewTblName + 
+				" where usrName  = ?";    	
     	
-    	
-    	
-    	
-    	
-    	
-    	
-    	
-    	
-    	
-    	
-    	
-    	
+    	return jdbcTemplate.query(sql,
+                new Object[]{usrName},   
+                getRowMapper());
     }
+    
+    
 	
 }

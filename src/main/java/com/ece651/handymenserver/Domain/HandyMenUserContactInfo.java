@@ -14,13 +14,13 @@ public class HandyMenUserContactInfo {
 	public String getUsrName() {
 		return usrName;
 	}
-
-	public void setEmailAddr(String emailAddr) {
-	    this.emailAddr = emailAddr;	
-	}
 	
 	public String getEmailAddr() {
 		return emailAddr;
+	}
+	
+	public void setEmailAddr(String emailAddr) {
+		this.emailAddr = emailAddr;
 	}
 	
 	public void setPhoneNumList(String phNums) {
