@@ -1,6 +1,7 @@
 package com.ece651.handymenserver.Domain;
 
 import java.util.List;
+import java.util.Map;
 import java.sql.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,6 +82,16 @@ public class HandyMenUserReviewDaoImpl implements HandyMenUserReviewDao {
     	return jdbcTemplate.query(sql,
                 new Object[]{usrName},   
                 getRowMapper());
+    }
+    
+    public Boolean isReviewExist(String userName, String reviewUsrName,
+    		String svrType)throws Exception 
+    {
+    	String sql = "select 1 from " + reviewTblName + 
+    			" where usrName = ? and reviewUsrName = ? and svrType = ? ";
+    	List<Map<String, Object>> list =  jdbcTemplate.queryForList(sql,
+    			new Object[]{userName, reviewUsrName, svrType});
+    	return !list.isEmpty();
     }
     
     

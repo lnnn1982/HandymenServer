@@ -7,6 +7,8 @@ public interface HandyMenUserReviewDao {
     void updateUserReview(HandyMenUserReview review) throws Exception;
     void deleteUserReview(String userName, String reviewUsrName,
     		String svrType)throws Exception;
+    Boolean isReviewExist(String userName, String reviewUsrName,
+    		String svrType)throws Exception;
 	
     List<HandyMenUserReview> listUsersReviewByName(String usrName) throws Exception;
 }
