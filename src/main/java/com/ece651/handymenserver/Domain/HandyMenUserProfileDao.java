@@ -1,14 +1,15 @@
 package com.ece651.handymenserver.Domain;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public interface HandyMenUserProfileDao {
     void addUserBasicInfo(HandyMenUserContactInfo contactInfo,
     		HandyMenUserAuth auth) throws Exception;
     void updateUserContactInfo(HandyMenUserContactInfo contactInfo) throws Exception;
+    
     void addUserServiceInfo(HandyMenUsrServiceInfo serviceInfo) throws Exception;
     void updateUserServiceInfo(HandyMenUsrServiceInfo serviceInfo) throws Exception;
+    void deleteServiceInfo(String userName, String type) throws Exception;
     
     HandyMenUserProfile getUser(String usrName)throws Exception;
     void deleteUser(String userName)throws Exception;

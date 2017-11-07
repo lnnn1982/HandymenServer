@@ -2,7 +2,7 @@ package com.ece651.handymenserver.Domain;
 
 public class HandyMenUsrServiceInfo {
     private String usrName = "";
-	private HandyMenSvrTypeEnum type = HandyMenSvrTypeEnum.NOSERVICE_TYPE;
+	private HandyMenSvrTypeEnum type = HandyMenSvrTypeEnum.OTHER_TYPE;
 	private String area = "";
 	private String description = "";
 	private String priceRange = "";

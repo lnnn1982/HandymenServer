@@ -132,8 +132,8 @@ public class UsrService {
 				"activate user successfully");
 	}
 	
-    @RequestMapping(value="/updateUserContanctInfo", method=RequestMethod.GET)
-	ResponseMessage updateUserContanctInfo(@RequestParam("usrName") String usrName, 
+    @RequestMapping(value="/updateUserContactInfo", method=RequestMethod.GET)
+	ResponseMessage updateUserContactInfo(@RequestParam("usrName") String usrName, 
 			@RequestParam("emailAddr") String emailAddr,
 			@RequestParam("phoneNumList") String phoneNumList) throws Exception
 	{
@@ -161,9 +161,113 @@ public class UsrService {
     ResponseMessage listServiceTypes()
 	{
     	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
-				HandyMenSvrTypeEnum.BABYSITER_TYPE.toString() + ","
-				+ "");
+				HandyMenSvrTypeEnum.getTypeStr());
 	}
+    
+    @RequestMapping(value="/addUserServiceInfo", method=RequestMethod.POST)
+	ResponseMessage addUserServiceInfo(
+			@RequestParam("usrName") String usrName, 
+			@RequestParam("type") String type,
+			@RequestParam(value="area", defaultValue="") String area,
+			@RequestParam(value="description", defaultValue="") String description,
+			@RequestParam(value="priceRange", defaultValue="") String priceRange) throws Exception
+	{
+		if(!HandyMenSvrTypeEnum.isTypeValid(type)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"type not valid");
+		}
+    	
+		if(usrProfileDao.isUsrServiceTypeExist(usrName, type)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user and service type already exist");
+		}
+		
+		HandyMenUsrServiceInfo serviceInfo = new HandyMenUsrServiceInfo(
+				Enum.valueOf(HandyMenSvrTypeEnum.class, type), usrName);
+		serviceInfo.setArea(area);
+		serviceInfo.setDescription(description);
+		serviceInfo.setPriceRange(priceRange);
+    	
+    	try {
+    		usrProfileDao.addUserServiceInfo(serviceInfo);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+    	
+    	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+				"add user service info successfully");
+	}
+    
+    @RequestMapping(value="/updateUserServiceInfo", method=RequestMethod.POST)
+	ResponseMessage updateUserServiceInfo(
+			@RequestParam("usrName") String usrName, 
+			@RequestParam("type") String type,
+			@RequestParam(value="area", defaultValue="") String area,
+			@RequestParam(value="description", defaultValue="") String description,
+			@RequestParam(value="priceRange", defaultValue="") String priceRange) throws Exception
+	{
+		if(!HandyMenSvrTypeEnum.isTypeValid(type)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"type not valid");
+		}
+    	
+		if(!usrProfileDao.isUsrServiceTypeExist(usrName, type)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user and service type not exist");
+		}
+		
+		HandyMenUsrServiceInfo serviceInfo = new HandyMenUsrServiceInfo(
+				Enum.valueOf(HandyMenSvrTypeEnum.class, type), usrName);
+		serviceInfo.setArea(area);
+		serviceInfo.setDescription(description);
+		serviceInfo.setPriceRange(priceRange);
+    	
+    	try {
+    		usrProfileDao.updateUserServiceInfo(serviceInfo);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+    	
+    	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+				"update user service info successfully");
+	}    
+    
+    @RequestMapping(value="/deleteUserServiceInfo", method=RequestMethod.GET)
+	ResponseMessage deleteUserServiceInfo(
+			@RequestParam("usrName") String usrName, 
+			@RequestParam("type") String type) throws Exception
+	{
+		if(!HandyMenSvrTypeEnum.isTypeValid(type)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"type not valid");
+		}
+    	
+		if(!usrProfileDao.isUsrServiceTypeExist(usrName, type)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user and service type not exist");
+		}
+    	
+    	try {
+    		usrProfileDao.deleteServiceInfo(usrName, type);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+    	
+    	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+				"delete user service info successfully");
+	}    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
 	

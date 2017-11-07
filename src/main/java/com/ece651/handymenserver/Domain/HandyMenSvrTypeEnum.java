@@ -6,10 +6,29 @@ public enum HandyMenSvrTypeEnum {
 	CARPENTER_TYPE,
 	ELECTRICIAN_TYPE,
 	BABYSITER_TYPE,
-	OTHER_TYPE,
-	NOSERVICE_TYPE;
+	OTHER_TYPE;
 	
-//	
+    public static String getTypeStr() {
+    	String str = PLUMBER_TYPE.toString() + "," + 
+    			CARPENTER_TYPE.toString() + "," + 
+    			ELECTRICIAN_TYPE.toString() + "," +
+    			BABYSITER_TYPE.toString() + "," +
+    			OTHER_TYPE.toString();
+    	
+    	return str;
+    }
+    
+    public static Boolean isTypeValid(String type) {
+    	try {
+			Enum.valueOf(HandyMenSvrTypeEnum.class, type);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+    }
+
+	
+	
 //	private String svrTypeName;
 //	
 //	private HandyMenSvrTypeEnum(String svrTypeName) {

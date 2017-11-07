@@ -79,7 +79,7 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
     }    
 
     public void updateUserServiceInfo(HandyMenUsrServiceInfo serviceInfo) throws Exception {
-    	deleteServiceInfo(serviceInfo.getUsrName());
+    	deleteServiceInfo(serviceInfo.getUsrName(), serviceInfo.getType().toString());
     	addUserServiceInfo(serviceInfo);
     }
     
@@ -95,10 +95,17 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
     	jdbcTemplate.update(deleteContactSql, new Object[]{userName});
     }
     
+    public void deleteServiceInfo(String userName, String type) throws Exception {
+    	String deleteServiceSql = "delete from " + usrServiceTblName 
+    			+ " where usrName = ? and type = ? ";
+    	jdbcTemplate.update(deleteServiceSql, new Object[]{userName, type});
+    }
+    
     private void deleteServiceInfo(String userName) throws Exception {
-    	String deleteServiceSql = "delete from " + usrServiceTblName + " where usrName = ?";
+    	String deleteServiceSql = "delete from " + usrServiceTblName 
+    			+ " where usrName = ? ";
     	jdbcTemplate.update(deleteServiceSql, new Object[]{userName});
-    }    
+    }
     
     private void deleteAuth(String userName) throws Exception {
     	String deleteAuthSql = "delete from " + authTblName + " where usrName = ?";
