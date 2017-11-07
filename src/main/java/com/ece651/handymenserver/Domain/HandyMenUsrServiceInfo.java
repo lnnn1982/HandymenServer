@@ -7,6 +7,7 @@ public class HandyMenUsrServiceInfo {
 	private String description = "";
 	private String priceRange = "";
 	//private attachments;
+    private int reviewRank = 0;
 	
 	public HandyMenUsrServiceInfo(HandyMenSvrTypeEnum type, String usrName) {
 		this.type = type;
@@ -44,7 +45,14 @@ public class HandyMenUsrServiceInfo {
 	public String getPriceRange() {
     	return priceRange;
     }
-	
+    
+    public void setReivewRank(int reviewRank) {
+    	this.reviewRank = reviewRank;
+    }
+    
+    public int getReviewRank() {
+    	return reviewRank;
+    }
 	
 	
 	

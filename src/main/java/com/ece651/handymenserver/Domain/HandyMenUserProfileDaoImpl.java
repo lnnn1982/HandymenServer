@@ -1,108 +1,279 @@
 package com.ece651.handymenserver.Domain;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.sql.*;
 
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.jdbc.core.*;
 
 @Component
 public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
+	
+	static class UserServiceRank {
+		private String usrName;
+		private String svrType;
+		private int avgRank;
+		
+		UserServiceRank(String usrName, String svrType, int avgRank) {
+			this.usrName = usrName;
+			this.svrType = svrType;
+			this.avgRank = avgRank;
+		}
+		
+		String getUsrName() {
+			return usrName;
+		}
+		
+		String getSvrType() {
+			return svrType;
+		}
+		
+		int getAvgRank() {
+			return avgRank;
+		}
+	}
+	
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    
     final private String usrContactTblName = "HandyMenUserContactInfo";
     final private String usrServiceTblName = "HandyMenServiceInfo";
     final private String authTblName = "HandyMenUserAuth";
     final private String reviewTblName = "HandyMenUserReview";
 	
-    public void addUser(HandyMenUserProfile user) throws Exception {
-    	addUserNonAuthInfo(user);
-    	
-    	String insertAuthTblSql = "INSERT INTO " + authTblName + "(usrName, passwd) "
-    			+ " VALUES (?, ?)";
-    	jdbcTemplate.update(insertAuthTblSql, new Object[]{
-    			user.getAuthInfo().getUsrName(), user.getAuthInfo().getPasswd()});	
+    public void addUserBasicInfo(HandyMenUserContactInfo contactInfo,
+    		HandyMenUserAuth auth) throws Exception {
+    	addUserContactInfo(contactInfo);
+    	addUserAuth(auth);
     }
     
-    private void addUserNonAuthInfo(HandyMenUserProfile user) throws Exception {
+    private void addUserContactInfo(HandyMenUserContactInfo contactInfo) throws Exception {
     	String insertContactSql = "INSERT INTO " + usrContactTblName + "(usrName, emailAddr, "
     			+ "phoneNumList) VALUES (?, ?, ?)";
     	jdbcTemplate.update(insertContactSql, new Object[]{
-    			user.getContactInfo().getUsrName(), user.getContactInfo().getEmailAddr(),
-    			user.getContactInfo().getPhoneNumList()});
-    	
+    			contactInfo.getUsrName(), contactInfo.getEmailAddr(),
+    			contactInfo.getPhoneNumList()});
+    }
+    
+    private void addUserAuth(HandyMenUserAuth auth) throws Exception {
+    	String insertAuthTblSql = "INSERT INTO " + authTblName + "(usrName, passwd) "
+    			+ " VALUES (?, ?)";
+    	jdbcTemplate.update(insertAuthTblSql, new Object[]{
+    			auth.getUsrName(), auth.getPasswd()});
+    }
+    
+    public void updateUserContactInfo(HandyMenUserContactInfo contactInfo) throws Exception {
+    	deleteContactInfo(contactInfo.getUsrName());
+    	addUserContactInfo(contactInfo);
+    }
+    
+    public void addUserServiceInfo(HandyMenUsrServiceInfo serviceInfo) throws Exception {
     	String insertSvrTblSql = "INSERT INTO " + usrServiceTblName + "(usrName, type, "
     			+ "area, description, priceRange) VALUES (?, ?, ?, ?, ?)";
     	jdbcTemplate.update(insertSvrTblSql, new Object[]{
-    			user.getServiceInfo().getUsrName(), user.getServiceInfo().getType().toString(),
-    			user.getServiceInfo().getArea(), 
-    			user.getServiceInfo().getDescription(),
-    			user.getServiceInfo().getPriceRange()});
-    }
+    			serviceInfo.getUsrName(), serviceInfo.getType().toString(),
+    			serviceInfo.getArea(), 
+    			serviceInfo.getDescription(),
+    			serviceInfo.getPriceRange()});
+    }    
 
-    public void updateUser(HandyMenUserProfile user) throws Exception {
-    	String deleteContactSql = "delete from " + usrContactTblName + " where usrName = ?";
-    	int rowNum = jdbcTemplate.update(deleteContactSql, new Object[]{
-    			user.getContactInfo().getUsrName()});
-    	if(rowNum == 0) {
-    		throw new Exception("updateUser user not exist");
-    	}
-    	
-    	String deleteServiceSql = "delete from " + usrServiceTblName + " where usrName = ?";
-    	rowNum = jdbcTemplate.update(deleteServiceSql, new Object[]{
-    			user.getContactInfo().getUsrName()});
-    	if(rowNum == 0) {
-    		throw new Exception("updateUser user not exist");
-    	}
-    	
-    	addUserNonAuthInfo(user);
+    public void updateUserServiceInfo(HandyMenUsrServiceInfo serviceInfo) throws Exception {
+    	deleteServiceInfo(serviceInfo.getUsrName());
+    	addUserServiceInfo(serviceInfo);
     }
     
     public void deleteUser(String userName) throws Exception {
-    	String deleteContactSql = "delete from " + usrContactTblName + " where usrName = ?";
-    	jdbcTemplate.update(deleteContactSql, new Object[]{userName});
-    	
-    	String deleteServiceSql = "delete from " + usrServiceTblName + " where usrName = ?";
-    	jdbcTemplate.update(deleteServiceSql, new Object[]{userName});
-    	
-    	String deleteAuthSql = "delete from " + authTblName + " where usrName = ?";
-    	jdbcTemplate.update(deleteAuthSql, new Object[]{userName});
-    	
-    	String deleteReviewSql = "delete from " + reviewTblName + " where usrName = ? or reviewUsrName = ?";
-    	jdbcTemplate.update(deleteReviewSql, new Object[]{userName, userName});
+    	deleteContactInfo(userName);
+    	deleteServiceInfo(userName);
+    	deleteAuth(userName);
+    	deleteReviewInfo(userName);
     }
     
-	public HandyMenUserProfile getUser(String usrName) throws Exception {	
-		String sql = getFullSelectProfileFilds() + " where t1.usrName = ? ";
+    private void deleteContactInfo(String userName) throws Exception {
+    	String deleteContactSql = "delete from " + usrContactTblName + " where usrName = ?";
+    	jdbcTemplate.update(deleteContactSql, new Object[]{userName});
+    }
+    
+    private void deleteServiceInfo(String userName) throws Exception {
+    	String deleteServiceSql = "delete from " + usrServiceTblName + " where usrName = ?";
+    	jdbcTemplate.update(deleteServiceSql, new Object[]{userName});
+    }    
+    
+    private void deleteAuth(String userName) throws Exception {
+    	String deleteAuthSql = "delete from " + authTblName + " where usrName = ?";
+    	jdbcTemplate.update(deleteAuthSql, new Object[]{userName});
+    }    
+    
+    private void deleteReviewInfo(String userName) throws Exception {
+    	String deleteReviewSql = "delete from " + reviewTblName + " where usrName = ? or reviewUsrName = ?";
+    	jdbcTemplate.update(deleteReviewSql, new Object[]{userName, userName});
+    }   
+	
+    public HandyMenUserProfile getUser(String usrName) throws Exception {
+    	return getUser(usrName, true);
+    }
+
+	private HandyMenUserProfile getUser(String usrName, Boolean isFull) throws Exception {
+		String sql = "select * from " + usrContactTblName + 
+				" where usrName  = ? ";
 		
-		return (HandyMenUserProfile)jdbcTemplate.queryForObject(sql,
-                new Object[]{usrName},   
-                usrProfileRowMap(true));
+		HandyMenUserContactInfo contactInfo = (HandyMenUserContactInfo
+				) jdbcTemplate.queryForObject(
+				sql,
+				new Object[] { usrName }, 
+				getContactRowMapper(isFull));
+		
+		sql = "select * from " + usrServiceTblName + " where usrName = ? ";
+    	List<HandyMenUsrServiceInfo> services = jdbcTemplate.query(
+    			sql,
+    			new Object[] { usrName},
+    			getServiceInfoRowMapper());
+    	
+    	sql = "select usrName, svrType, cast(avg(rank) as SIGNED) avgRank from "
+    			+ reviewTblName + " where usrName = ? "
+    			+ "group by usrName, svrType ";
+    	List<UserServiceRank> ranks = jdbcTemplate.query(
+    			sql,
+    			new Object[] { usrName},
+    			getUserServiceRankMapper());
+    	
+    	addRankServiceInfo(services, ranks);
+    	
+    	HandyMenUserProfile profile = new HandyMenUserProfile(
+    			contactInfo, 
+    			new HandyMenUserAuth("", ""));
+    	profile.setServiceInfoList(services);
+    	
+    	return profile;
 	}
 	
-	private String getFullSelectProfileFilds() {
-		String sql = "select t1.usrName,t1.emailAddr, t1.phoneNumList, " + 
-	               " t2.type, t2.area, t2.description, t2.priceRange from "+ 
-	    			usrContactTblName + " t1 join " + usrServiceTblName + 
-	    			" t2 on t1.usrName = t2.usrName join " + reviewTblName
-	    			+ " t3 on t1.usrName = t3.usrName ";
+    private void addRankServiceInfo(List<HandyMenUsrServiceInfo> services,
+    		List<UserServiceRank> ranks)
+    {
+    	Map<String, Integer> usrSvrRankMap = new HashMap<>();
+    	for (UserServiceRank userServiceRank : ranks) {
+			String key = userServiceRank.getUsrName() + "_"
+					+ userServiceRank.getSvrType();
+			usrSvrRankMap.put(key, userServiceRank.getAvgRank());
+		}
+    	
+    	for (HandyMenUsrServiceInfo service : services) {
+    		String key = service.getUsrName() + "_" + service.getType().toString();
+    		Integer rank = usrSvrRankMap.get(key);
+    		if(rank != null) {
+    			service.setReivewRank(rank);
+    		}
+		}
+    }
 
-		return sql;
-	}
-	
-	private String getSimpleSelectProfileFilds() {
-		String sql = "select t1.usrName, " + 
-	               " t2.type, t2.area, t2.description, t2.priceRange from " + 
-	    			usrContactTblName + " t1 join " + usrServiceTblName + 
-	    			" t2 on t1.usrName = t2.usrName join " + reviewTblName
-	    			+ " t3 on t1.usrName = t3.usrName ";
+    public List<HandyMenUserProfile> listFullUserProfiles() throws Exception {
+    	return listUserProfiles(true);
+    }
+    
+    public List<HandyMenUserProfile> listSimpleUserProfiles() throws Exception {
+    	return listUserProfiles(false);
+    }    
+    
+    private List<HandyMenUserProfile> listUserProfiles(Boolean isFull) throws Exception {
+    	List<HandyMenUserProfile> profiles = new ArrayList<>();
+    	List<String> usrNames = getAllUserNames();
+    	for (String usrName : usrNames) {
+    		profiles.add(getUser(usrName, isFull));
+		}
 
-		return sql;
-	}
+    	return profiles;
+    }
+    
+    public List<HandyMenUserProfile> listFullUserProfilesBySvrType(
+    		String serviceType) throws Exception {
+    	return listUserProfilesBySvrType(serviceType, true); 
+    }
+    
+    public List<HandyMenUserProfile> listSimpleUserProfilesBySvrType(
+    		String serviceType) throws Exception {
+        return listUserProfilesBySvrType(serviceType, false);    	
+    }
+    
+    private List<HandyMenUserProfile> listUserProfilesBySvrType(
+    		String serviceType, Boolean isFull) throws Exception 
+    {
+    	List<HandyMenUserProfile> profiles = new ArrayList<>();
+    	List<String> usrNames = getUserNamesByServiceType(serviceType);
+    	for (String usrName : usrNames) {
+    		profiles.add(getUser(usrName, isFull));
+		}
+
+    	return profiles;    	
+    }
+     
+    private List<String> getUserNamesByServiceType(String serviceType) throws Exception {
+    	String sql = "select distinct usrName from " + usrServiceTblName + " where "
+    			+ " type = ? ";
+    	return (List<String>) jdbcTemplate.queryForList(
+    			sql,   
+                new Object[]{serviceType},  
+                String.class);
+    }
+    
+    private List<String> getAllUserNames() throws Exception {
+    	String sql = "select distinct usrName from " + usrServiceTblName;
+    	return (List<String>) jdbcTemplate.queryForList(
+    			sql,
+                String.class);
+    }
 	
+    private RowMapper getContactRowMapper(Boolean isFull) {
+    	
+    	return new RowMapper(){
+			
+		    @Override
+	        public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+   			    HandyMenUserContactInfo contactInfo = new HandyMenUserContactInfo(
+   			    		rs.getString("usrName"));
+   			    if(isFull) {
+       			    contactInfo.setPhoneNumList(rs.getString("phoneNumList"));
+       			    contactInfo.setEmailAddr(rs.getString("emailAddr"));
+   			    }
+
+		        return contactInfo;
+	        }
+        };
+    }
+	
+    private RowMapper getServiceInfoRowMapper() {
+    	
+    	return new RowMapper(){
+			
+		    @Override
+	        public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+   			    HandyMenUsrServiceInfo service = new HandyMenUsrServiceInfo(
+			    			Enum.valueOf(HandyMenSvrTypeEnum.class, rs.getString("type")),
+			    		    rs.getString("usrName"));
+   			    service.setArea(rs.getString("area"));
+			    service.setDescription(rs.getString("description"));
+			    service.setPriceRange(rs.getString("priceRange"));
+			    
+			    return service;
+	        }
+        };
+    }
+	
+	private RowMapper getUserServiceRankMapper() {
+		
+    	return new RowMapper(){
+			
+		    @Override
+	        public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+		    	UserServiceRank rankInfo = new UserServiceRank(
+		    			    rs.getString("usrName"),
+			    		    rs.getString("svrType"),
+			    		    rs.getInt("avgRank"));
+			    
+			    return rankInfo;
+	        }
+        };
+	}
 	
     public Boolean isUserExit(String usrName){
     	String sql = "select 1 from " + usrContactTblName + " where usrName = ? ";
@@ -118,131 +289,20 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
     	return !list.isEmpty();  	
     }
     
-    public List<HandyMenUserProfile> listFullUserProfiles(
-    		Map<String, String> searchFields,
-    		Map<String, String> searchNotFields,
-    		String orderField,
-    		Boolean isDesc) throws Exception 
-    {
-    	String sql = getFullSelectProfileFilds() + genConditionSql(searchFields,
-    			searchNotFields) + genOrderSql(orderField, isDesc);
-    	return jdbcTemplate.query(sql,
-    			getArgumentObjects(searchFields, searchNotFields, orderField),   
-                usrProfileRowMap(true));
+    public Boolean checkUserAndEmail(String usrName, String emailAddr) {
+    	String sql = "select 1 from " + usrContactTblName + " where emailAddr = ? "
+    			+ " and usrName = ? ";
+    	List<Map<String, Object>> list =  jdbcTemplate.queryForList(sql,
+    			new Object[]{emailAddr, usrName});
+    	return !list.isEmpty();    	
     }
     
-    private Object[] getArgumentObjects(Map<String, String> searchFields,
-    		Map<String, String> searchNotFields, String orderField)
-    {
-    	int arraySize = searchFields.size() + searchNotFields.size();
-    	if(!orderField.isEmpty()) {
-    		arraySize++;
-    	}
-    	
-    	Object[] objArray = new Object[arraySize];
-    	
-    	int i = 0;
-    	for (Map.Entry<String, String> item : searchFields.entrySet()) {
-    		objArray[i] = item.getValue();
-    		i++;
-		}
-    	
-    	for (Map.Entry<String, String> item1 : searchNotFields.entrySet()) {
-    		objArray[i] = item1.getValue();
-    		i++;
-		}
-    	
-    	if(!orderField.isEmpty()) {
-    		objArray[i] = orderField;
-    	}
-    	
-    	return objArray;
-    }
-    
-    private String genConditionSql(Map<String, String> searchFields,
-    		Map<String, String> searchNotFields) {
-    	if(searchFields.isEmpty() && searchNotFields.isEmpty()) {
-    		return " ";
-    	}
-    	
-    	String whereSql = " where ";
-    	for (Map.Entry<String, String> item : searchFields.entrySet()) {
-    		String field = item.getKey();
-    		if(item.getKey().equals("usrName")) {
-    			field = "t1." + field;
-    		}
-    		
-    		whereSql = whereSql + field + " = ? and ";
-		}   	
-
-    	for (Map.Entry<String, String> item1 : searchNotFields.entrySet()) {
-    		String field = item1.getKey();
-    		if(item1.getKey().equals("usrName")) {
-    			field = "t1." + field;
-    		}
-    		
-    		whereSql = whereSql + field + " != ? and ";
-		}
-    	
-    	whereSql = whereSql.substring(0, whereSql.length()-5);
-    	return whereSql;
-    }
-    
-    private String genOrderSql(String orderField, Boolean isDesc) {
-    	if(!orderField.isEmpty()) {
-    		String sql = " order by ? ";
-    		if(isDesc) {
-    			sql += " desc ";
-    		}
-    		else {
-    			sql += " asc ";
-    		}
-    		return sql;
-    	}
-    	else {
-    		return " ";
-    	}
-    }    
-    
-    private RowMapper usrProfileRowMap(Boolean isFull) {
-    	return new RowMapper()
-    	{
-    		
-            @Override  
-            public Object mapRow(ResultSet rs, int rowNum) throws SQLException 
-            {  
-   			    HandyMenUsrServiceInfo service = new HandyMenUsrServiceInfo(
-			    			Enum.valueOf(HandyMenSvrTypeEnum.class, rs.getString("type")),
-			    		    rs.getString("usrName"));
-   			    service.setArea(rs.getString("area"));
-			    service.setDescription(rs.getString("description"));
-			    service.setPriceRange(rs.getString("priceRange "));
-   			 
-   			    HandyMenUserContactInfo contactInfo = new HandyMenUserContactInfo(rs.getString("usrName"));
-   			    if(isFull) {
-       			    contactInfo.setPhoneNumList(rs.getString("phoneNumList"));
-       			    contactInfo.setEmailAddr(rs.getString("emailAddr"));
-   			    }
-   			 
-			    HandyMenUserProfile profile = new HandyMenUserProfile(contactInfo);
-				profile.setServiceInfo(service);
-				 
-				return profile;
-            }
-        };
-    }
-    
-    public List<HandyMenUserProfile> listSimpleUserProfiles(
-    		Map<String, String> searchFields,
-    		Map<String, String> searchNotFields,
-    		String orderField,
-    		Boolean isDesc) throws Exception 
-    {
-    	String sql = getSimpleSelectProfileFilds() + genConditionSql(searchFields,
-    			searchNotFields) + genOrderSql(orderField, isDesc);
-    	return jdbcTemplate.query(sql,
-    			getArgumentObjects(searchFields, searchNotFields, orderField),   
-                usrProfileRowMap(false));
+    public Boolean isUsrServiceTypeExist(String usrName, String serviceType) {
+    	String sql = "select 1 from " + usrServiceTblName + " where usrName = ? "
+    			+ " and serviceType = ? ";
+    	List<Map<String, Object>> list =  jdbcTemplate.queryForList(sql,
+    			new Object[]{usrName, serviceType});
+    	return !list.isEmpty();    	
     }
 
     public void updatePasswd(String usr, String passwd) throws Exception {

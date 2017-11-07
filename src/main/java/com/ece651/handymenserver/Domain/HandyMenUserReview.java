@@ -4,12 +4,15 @@ public class HandyMenUserReview {
     private String usrName;
     private String reviewUsrName;
     private String reviewContent;
+    HandyMenSvrTypeEnum svrType;
     int rank;
     
-    public HandyMenUserReview(String usrName, String reviewUsrName, String reviewContent, int rank) {
+    public HandyMenUserReview(String usrName, String reviewUsrName, 
+    		HandyMenSvrTypeEnum svrType, String reviewContent, int rank) {
     	this.usrName = usrName;
     	this.reviewUsrName = reviewUsrName;
     	this.reviewContent = reviewContent;
+    	this.svrType = svrType;
     	this.rank = rank;
     }
     
@@ -27,6 +30,10 @@ public class HandyMenUserReview {
     
     public int getRank() {
     	return rank;
+    }
+    
+    HandyMenSvrTypeEnum getSvrType() {
+    	return svrType;
     }
 	
 	

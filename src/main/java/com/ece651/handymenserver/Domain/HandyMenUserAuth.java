@@ -4,16 +4,16 @@ public class HandyMenUserAuth {
     private String usrName;
     private String passwd;
     
-    HandyMenUserAuth(String usrName, String passwd) {
+    public HandyMenUserAuth(String usrName, String passwd) {
     	this.usrName = usrName;
     	this.passwd = passwd;
     }
     
-    String getUsrName() {
+    public String getUsrName() {
     	return usrName;
     }
     
-    String getPasswd() {
+    public String getPasswd() {
     	return passwd;
     }
 	

@@ -1,41 +1,38 @@
 package com.ece651.handymenserver.Domain;
 
+import java.util.*;
+
 public class HandyMenUserProfile {
-    private HandyMenUsrServiceInfo serviceInfo;
+    private List<HandyMenUsrServiceInfo> serviceInfoList = new ArrayList<>();
     private HandyMenUserContactInfo contactInfo;
     private HandyMenUserAuth authInfo;
     
     public HandyMenUserProfile(HandyMenUserContactInfo contactInfo,
     		HandyMenUserAuth authInfo) {
     	this.contactInfo = contactInfo;
-    	this.serviceInfo = new HandyMenUsrServiceInfo(
-    			HandyMenSvrTypeEnum.NOSERVICE_TYPE, contactInfo.getUsrName());
     	this.authInfo = authInfo;
     }
     
-    public HandyMenUserProfile(HandyMenUserContactInfo contactInfo) {
-    	this.contactInfo = contactInfo;
-    	this.serviceInfo = new HandyMenUsrServiceInfo(
-    			HandyMenSvrTypeEnum.NOSERVICE_TYPE, contactInfo.getUsrName());
-    	this.authInfo = null;
-    }
-    
-    HandyMenUserContactInfo getContactInfo() {
+    public HandyMenUserContactInfo getContactInfo() {
     	return contactInfo;
     }	
     
-    void setServiceInfo(HandyMenUsrServiceInfo serviceInfo) {
-    	this.serviceInfo = serviceInfo;
+    public void addServiceInfo(HandyMenUsrServiceInfo serviceInfo) {
+    	this.serviceInfoList.add(serviceInfo);
     }
     
-    HandyMenUsrServiceInfo getServiceInfo() {
-    	return serviceInfo;
+    public List<HandyMenUsrServiceInfo> getServiceInfoList() {
+    	return serviceInfoList;
+    }
+    
+    public void setServiceInfoList(List<HandyMenUsrServiceInfo> serviceInfoList) {
+    	this.serviceInfoList = serviceInfoList;
     }
 	
-    HandyMenUserAuth getAuthInfo() {
+    public HandyMenUserAuth getAuthInfo() {
     	return authInfo;
     }
-	
+
 	
 	
 	
