@@ -136,7 +136,7 @@ public class UsrService {
 			@RequestParam("emailAddr") String emailAddr,
 			@RequestParam("phoneNumList") String phoneNumList) throws Exception
 	{
-		if(usrProfileDao.checkUserAndEmail(usrName, emailAddr)) {
+		if(!usrProfileDao.checkUserAndEmail(usrName, emailAddr)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
 					"user name or email address is not valid");
 		}
@@ -154,6 +154,26 @@ public class UsrService {
     	
     	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
 				"update contact info successfully");
+	}
+    
+    @RequestMapping(value="/updatePasswd", method=RequestMethod.GET)
+	ResponseMessage updatePasswd(@RequestParam("usrName") String usrName, 
+			@RequestParam("passwd") String passwd) throws Exception
+	{
+		if(!usrProfileDao.isUserExit(usrName)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user not exist");
+		}
+
+    	try {
+    		usrProfileDao.updatePasswd(usrName, passwd);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+    	
+    	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+				"update password successfully");
 	}
     
     @RequestMapping(value="/listServiceTypes", method=RequestMethod.GET)
@@ -278,6 +298,25 @@ public class UsrService {
 			e.printStackTrace();
 			throw e;
 		}
+	}
+	
+	@RequestMapping("/deleteUser")
+	ResponseMessage deleteUser(@RequestParam("usrName") String usrName) throws Exception
+	{
+		if(!usrProfileDao.isUserExit(usrName)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user not exist");
+		}
+		
+		try {
+			usrProfileDao.deleteUser(usrName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
+		return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+				"delete user successfully");
 	}	
 	
 	@RequestMapping("/listAllServiceUsers")

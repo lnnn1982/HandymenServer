@@ -306,7 +306,7 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
     
     public Boolean isUsrServiceTypeExist(String usrName, String serviceType) {
     	String sql = "select 1 from " + usrServiceTblName + " where usrName = ? "
-    			+ " and serviceType = ? ";
+    			+ " and type = ? ";
     	List<Map<String, Object>> list =  jdbcTemplate.queryForList(sql,
     			new Object[]{usrName, serviceType});
     	return !list.isEmpty();    	
