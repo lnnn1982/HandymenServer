@@ -32,7 +32,7 @@ public class HandyMenUserReview {
     	return rank;
     }
     
-    HandyMenSvrTypeEnum getSvrType() {
+    public HandyMenSvrTypeEnum getSvrType() {
     	return svrType;
     }
 	
