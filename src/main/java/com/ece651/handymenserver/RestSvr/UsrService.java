@@ -382,6 +382,11 @@ public class UsrService {
 			@RequestParam(value="reviewContent", defaultValue="") String reviewContent,
 			@RequestParam("rank") int rank) throws Exception
 	{
+		if(usrName.equals(reviewUsrName)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"review user the same as user");
+		}
+		
 		if(usrReviewDao.isReviewExist(usrName, reviewUsrName, svrType)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
 					"review already exist");

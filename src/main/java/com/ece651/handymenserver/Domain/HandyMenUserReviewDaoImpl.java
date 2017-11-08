@@ -29,7 +29,7 @@ public class HandyMenUserReviewDaoImpl implements HandyMenUserReviewDao {
     }
     
     public void updateUserReview(HandyMenUserReview review) throws Exception {
-    	String updateSql = "update " + reviewTblName + " set reviewContent = ? and rank = ? " 
+    	String updateSql = "update " + reviewTblName + " set reviewContent = ? , rank = ? " 
             +  " where usrName = ? and reviewUsrName = ? and svrType = ?";
     	int rowNum = jdbcTemplate.update(updateSql, new Object[]{review.getReviewContent(),
     			review.getRank(), review.getUsrName(), review.getReviewUsrName(),
@@ -71,7 +71,7 @@ public class HandyMenUserReviewDaoImpl implements HandyMenUserReviewDao {
     		String svrType)throws Exception {
     	String deleteSql = "delete from " + reviewTblName + 
     			" where usrName = ? and reviewUsrName = ? "
-    			+ "svrType = ? ";
+    			+ "and svrType = ? ";
     	jdbcTemplate.update(deleteSql, new Object[]{userName, reviewUsrName, svrType});
     }
 	
