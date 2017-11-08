@@ -9,8 +9,10 @@ import javax.servlet.http.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.ece651.handymenserver.Domain.*;
+import com.ece651.handymenserver.storage.*;
 
 @RestController
 public class UsrService {
@@ -18,7 +20,10 @@ public class UsrService {
 	@Autowired
     private HandyMenUserProfileDao usrProfileDao;
 	@Autowired
-    private HandyMenUserReviewDao usrReviewDao;	
+    private HandyMenUserReviewDao usrReviewDao;
+	
+	@Autowired
+    private StorageService storageService;	
 	
 	Map<String, HandyMenUserProfile> waitUsers = new ConcurrentHashMap<>();
 	Map<String, String> usrNameVerifyCodeMap = new ConcurrentHashMap<>();
@@ -478,6 +483,38 @@ public class UsrService {
 		return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
 				"delete review successfully");
 	}
+	
+	
+	@RequestMapping(value="/uploadFile", method=RequestMethod.POST)
+	ResponseMessage uploadFile(
+			@RequestParam("usrName") String usrName,
+			@RequestParam("file") MultipartFile file) throws Exception
+	{
+		if(!usrProfileDao.isUserExit(usrName)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user not exist");
+		}
+		
+		try {
+			storageService.store(file);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
+		return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+				"upload file successfully");
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
