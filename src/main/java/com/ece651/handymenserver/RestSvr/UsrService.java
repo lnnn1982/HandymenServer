@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ece651.handymenserver.Domain.*;
 import com.ece651.handymenserver.storage.*;
+import com.ece651.handymenserver.notification.*;
 
 @RestController
 public class UsrService {
@@ -21,6 +22,9 @@ public class UsrService {
     private HandyMenUserProfileDao usrProfileDao;
 	@Autowired
     private HandyMenUserReviewDao usrReviewDao;
+	
+	@Autowired
+    private NotificationService notificationService;
 	
 	@Autowired
     private StorageService storageService;	
@@ -98,6 +102,7 @@ public class UsrService {
 		usrNameVerifyCodeMap.put(usrName, verificationCode);
 		
 		//send email to check
+		notificationService.sendVerificationCode(user, verificationCode);
 		
 		return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
 				"Already sent email, wait for verification code."
@@ -417,6 +422,13 @@ public class UsrService {
 			throw e;
 		}
 		
+		try {
+			HandyMenUserProfile profile = usrProfileDao.getUser(usrName);
+			notificationService.sendReviewNotification(profile.getContactInfo(), review);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
 				"add user review successfully");
 	}
@@ -440,6 +452,13 @@ public class UsrService {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
+		}
+		
+		try {
+			HandyMenUserProfile profile = usrProfileDao.getUser(usrName);
+			notificationService.sendUpdateReviewNotification(profile.getContactInfo(), review);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		
 		return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
