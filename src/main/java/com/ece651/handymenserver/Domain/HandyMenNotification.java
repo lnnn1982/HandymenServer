@@ -1,0 +1,38 @@
+package com.ece651.handymenserver.Domain;
+
+public class HandyMenNotification {
+    static public enum TypeEnum {
+    	ReviewType;
+    }
+	
+    private String usrName;
+    private String timeStamp;
+    private TypeEnum notificationType;
+    private String content;
+    
+    public HandyMenNotification(String usrName, String timeStamp,
+    		TypeEnum type, String content) {
+    	this.usrName = usrName;
+    	this.timeStamp = timeStamp;
+    	this.notificationType = type;
+    	this.content = content;
+    }
+    
+    public String getUsrName() {
+    	return usrName;
+    }
+    
+    public String getTimeStamp() {
+    	return timeStamp;
+    }
+    
+    public TypeEnum getNotificationType () {
+    	return notificationType;
+    }
+    
+    public String getContent() {
+    	return content;
+    }
+    
+	
+}

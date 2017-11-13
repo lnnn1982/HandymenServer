@@ -6,6 +6,7 @@ public class HandyMenUserContactInfo {
     private String usrName = "";
     private String emailAddr = "";
     private String phoneNumList = "";
+    private String uploadFileNames = "";
     
 	public HandyMenUserContactInfo(String usrName) {
 		this.usrName = usrName;
@@ -30,7 +31,17 @@ public class HandyMenUserContactInfo {
 	public String getPhoneNumList() {
 		return this.phoneNumList;
 	}
-//	
+	
+	public void setUploadFileNames(String uploadFileNames) {
+		this.uploadFileNames = uploadFileNames;
+	}
+	
+	public String getUploadFileNames() {
+		return uploadFileNames;
+	}
+
+	
+	
 //	public static List<HandyMenSvrTypeEnum> formSvrTypeEnumListFrmoStr(String str) {
 //		str.replaceAll("[", "");
 //		str.replaceAll("]", "");

@@ -6,7 +6,7 @@ public class HandyMenUsrServiceInfo {
 	private String area = "";
 	private String description = "";
 	private String priceRange = "";
-	//private attachments;
+	private String uploadFileNames = "";
     private int reviewRank = 0;
 	
 	public HandyMenUsrServiceInfo(HandyMenSvrTypeEnum type, String usrName) {
@@ -55,6 +55,13 @@ public class HandyMenUsrServiceInfo {
     }
 	
 	
+	public void setUploadFileNames(String uploadFileNames) {
+		this.uploadFileNames = uploadFileNames;
+	}
+	
+	public String getUploadFileNames() {
+		return uploadFileNames;
+	}
 	
 	
 	

@@ -50,10 +50,11 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
     
     private void addUserContactInfo(HandyMenUserContactInfo contactInfo) throws Exception {
     	String insertContactSql = "INSERT INTO " + usrContactTblName + "(usrName, emailAddr, "
-    			+ "phoneNumList) VALUES (?, ?, ?)";
+    			+ "phoneNumList, uploadFileNames) VALUES (?, ?, ?, ?)";
     	jdbcTemplate.update(insertContactSql, new Object[]{
     			contactInfo.getUsrName(), contactInfo.getEmailAddr(),
-    			contactInfo.getPhoneNumList()});
+    			contactInfo.getPhoneNumList(),
+    			contactInfo.getUploadFileNames()});
     }
     
     private void addUserAuth(HandyMenUserAuth auth) throws Exception {
@@ -70,12 +71,14 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
     
     public void addUserServiceInfo(HandyMenUsrServiceInfo serviceInfo) throws Exception {
     	String insertSvrTblSql = "INSERT INTO " + usrServiceTblName + "(usrName, type, "
-    			+ "area, description, priceRange) VALUES (?, ?, ?, ?, ?)";
+    			+ "area, description, priceRange, uploadFileNames) " + 
+    			"VALUES (?, ?, ?, ?, ?, ?)";
     	jdbcTemplate.update(insertSvrTblSql, new Object[]{
     			serviceInfo.getUsrName(), serviceInfo.getType().toString(),
     			serviceInfo.getArea(), 
     			serviceInfo.getDescription(),
-    			serviceInfo.getPriceRange()});
+    			serviceInfo.getPriceRange(),
+    			serviceInfo.getUploadFileNames()});
     }    
 
     public void updateUserServiceInfo(HandyMenUsrServiceInfo serviceInfo) throws Exception {
@@ -241,6 +244,7 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
    			    if(isFull) {
        			    contactInfo.setPhoneNumList(rs.getString("phoneNumList"));
        			    contactInfo.setEmailAddr(rs.getString("emailAddr"));
+       			    contactInfo.setUploadFileNames(rs.getString("uploadFileNames"));
    			    }
 
 		        return contactInfo;
@@ -260,6 +264,7 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
    			    service.setArea(rs.getString("area"));
 			    service.setDescription(rs.getString("description"));
 			    service.setPriceRange(rs.getString("priceRange"));
+			    service.setUploadFileNames(rs.getString("uploadFileNames"));
 			    
 			    return service;
 	        }

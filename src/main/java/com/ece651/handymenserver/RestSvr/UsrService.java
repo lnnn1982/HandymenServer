@@ -72,6 +72,7 @@ public class UsrService {
 	ResponseMessage addUser(@RequestParam("usrName") String usrName, 
 			@RequestParam("emailAddr") String emailAddr,
 			@RequestParam(value="phoneNumList", defaultValue="") String phoneNumList,
+			@RequestParam(value="uploadFileNames", defaultValue="") String uploadFileNames,
 			@RequestParam("passwd") String passwd) throws Exception
 	{
 		if(usrName.equalsIgnoreCase(HandyMenUserContactInfo.GUEST_USR_NAME)) {
@@ -92,6 +93,7 @@ public class UsrService {
 		HandyMenUserContactInfo user = new HandyMenUserContactInfo(usrName);
 		user.setPhoneNumList(phoneNumList);
 		user.setEmailAddr(emailAddr);
+		user.setUploadFileNames(uploadFileNames);
 		
 		HandyMenUserAuth auth = new HandyMenUserAuth(usrName, passwd);	
 		HandyMenUserProfile profile = new HandyMenUserProfile(user, auth);
@@ -144,7 +146,8 @@ public class UsrService {
     @RequestMapping(value="/updateUserContactInfo", method=RequestMethod.GET)
 	ResponseMessage updateUserContactInfo(@RequestParam("usrName") String usrName, 
 			@RequestParam("emailAddr") String emailAddr,
-			@RequestParam("phoneNumList") String phoneNumList) throws Exception
+			@RequestParam("phoneNumList") String phoneNumList,
+			@RequestParam("uploadFileNames") String uploadFileNames) throws Exception
 	{
 		if(!usrProfileDao.checkUserAndEmail(usrName, emailAddr)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
@@ -154,6 +157,7 @@ public class UsrService {
 		HandyMenUserContactInfo contact = new HandyMenUserContactInfo(usrName);
 		contact.setEmailAddr(emailAddr);
 		contact.setPhoneNumList(phoneNumList);
+		contact.setUploadFileNames(uploadFileNames);
 		
     	try {
     		usrProfileDao.updateUserContactInfo(contact);
@@ -199,7 +203,8 @@ public class UsrService {
 			@RequestParam("type") String type,
 			@RequestParam(value="area", defaultValue="") String area,
 			@RequestParam(value="description", defaultValue="") String description,
-			@RequestParam(value="priceRange", defaultValue="") String priceRange) throws Exception
+			@RequestParam(value="priceRange", defaultValue="") String priceRange,
+			@RequestParam(value="uploadFileNames", defaultValue="") String uploadFileNames) throws Exception
 	{
 		if(!HandyMenSvrTypeEnum.isTypeValid(type)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
@@ -221,6 +226,7 @@ public class UsrService {
 		serviceInfo.setArea(area);
 		serviceInfo.setDescription(description);
 		serviceInfo.setPriceRange(priceRange);
+		serviceInfo.setUploadFileNames(uploadFileNames);
     	
     	try {
     		usrProfileDao.addUserServiceInfo(serviceInfo);
@@ -237,9 +243,10 @@ public class UsrService {
 	ResponseMessage updateUserServiceInfo(
 			@RequestParam("usrName") String usrName, 
 			@RequestParam("type") String type,
-			@RequestParam(value="area", defaultValue="") String area,
-			@RequestParam(value="description", defaultValue="") String description,
-			@RequestParam(value="priceRange", defaultValue="") String priceRange) throws Exception
+			@RequestParam("area") String area,
+			@RequestParam("description") String description,
+			@RequestParam("priceRange") String priceRange,
+			@RequestParam("uploadFileNames") String uploadFileNames) throws Exception
 	{
 		if(!HandyMenSvrTypeEnum.isTypeValid(type)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
@@ -256,6 +263,7 @@ public class UsrService {
 		serviceInfo.setArea(area);
 		serviceInfo.setDescription(description);
 		serviceInfo.setPriceRange(priceRange);
+		serviceInfo.setUploadFileNames(uploadFileNames);
     	
     	try {
     		usrProfileDao.updateUserServiceInfo(serviceInfo);
@@ -437,7 +445,7 @@ public class UsrService {
 	ResponseMessage updateUserReview(@RequestParam("usrName") String usrName, 
 			@RequestParam("reviewUsrName") String reviewUsrName,
 			@RequestParam("svrType") String svrType,
-			@RequestParam(value="reviewContent", defaultValue="") String reviewContent,
+			@RequestParam("reviewContent") String reviewContent,
 			@RequestParam("rank") int rank) throws Exception
 	{
 		if(!usrReviewDao.isReviewExist(usrName, reviewUsrName, svrType)) {
