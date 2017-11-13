@@ -25,13 +25,25 @@ public class NotificationServiceImpl implements NotificationService {
 		}
     }
     
-    public void sendReviewNotification(HandyMenUserContactInfo user, 
-    		HandyMenUserReview review) {
+    public void sendNotification(HandyMenUserContactInfo user, HandyMenNotification notification) {
+    	String subject = "Notification from Handymen Service";
+    	try {
+    		emailService.sendTextMail(user.getEmailAddr(), subject, notification.getContent());
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	
+    	
     	
     }
 	
-    public void sendUpdateReviewNotification(HandyMenUserContactInfo user, 
-    		HandyMenUserReview review) {
+    public void sendChatMessage(HandyMenUserContactInfo user, HandyMenChatMessage message) {
+    	
+    	
+    	
+    	
+    	
     	
     }
 	

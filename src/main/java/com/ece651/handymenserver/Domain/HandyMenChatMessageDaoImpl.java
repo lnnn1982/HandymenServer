@@ -45,12 +45,12 @@ public class HandyMenChatMessageDaoImpl implements HandyMenChatMessageDao {
     	return !list.isEmpty();
     }
 	
-    public List<HandyMenChatMessageDao> listUsersChatMessages(String usrName) throws Exception {
+    public List<HandyMenChatMessage> listUsersChatMessages(String usrName) throws Exception {
 		String sql = "select * from " + chatMessageTblName + 
-				" where usrName  = ?";    	
+				" where usrName  = ? or peerUsrName = ?";    	
     	
     	return jdbcTemplate.query(sql,
-                new Object[]{usrName},   
+                new Object[]{usrName, usrName},   
                 getRowMapper());
     }
     

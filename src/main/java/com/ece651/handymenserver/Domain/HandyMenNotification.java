@@ -3,6 +3,20 @@ package com.ece651.handymenserver.Domain;
 public class HandyMenNotification {
     static public enum TypeEnum {
     	ReviewType;
+    	
+        public static String getTypeStr() {
+        	String str = ReviewType.toString();
+        	return str;
+        }
+        
+        public static Boolean isTypeValid(String type) {
+        	try {
+    			Enum.valueOf(TypeEnum.class, type);
+    			return true;
+    		} catch (Exception e) {
+    			return false;
+    		}
+        }
     }
 	
     private String usrName;

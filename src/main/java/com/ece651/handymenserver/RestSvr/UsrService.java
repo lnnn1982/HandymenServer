@@ -2,6 +2,7 @@ package com.ece651.handymenserver.RestSvr;
 
 import java.util.*;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.concurrent.*;
 
 import javax.servlet.http.*;
@@ -27,7 +28,13 @@ public class UsrService {
     private NotificationService notificationService;
 	
 	@Autowired
-    private StorageService storageService;	
+    private StorageService storageService;
+	
+	@Autowired
+	private HandyMenChatMessageDao chatMessageDao;
+	
+	@Autowired
+	private HandyMenNotificationDao notificationDao;
 	
 	Map<String, HandyMenUserProfile> waitUsers = new ConcurrentHashMap<>();
 	Map<String, String> usrNameVerifyCodeMap = new ConcurrentHashMap<>();
@@ -432,7 +439,18 @@ public class UsrService {
 		
 		try {
 			HandyMenUserProfile profile = usrProfileDao.getUser(usrName);
-			notificationService.sendReviewNotification(profile.getContactInfo(), review);
+			
+			String content = "User " + reviewUsrName + " add a review for you.";	
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			HandyMenNotification notification = new HandyMenNotification(usrName,
+					df.format(new Date()),
+					HandyMenNotification.TypeEnum.ReviewType, content);
+			
+			notificationService.sendNotification(profile.getContactInfo(), 
+					notification);
+			
+			notificationDao.addHandyMenNotification(notification);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -464,7 +482,16 @@ public class UsrService {
 		
 		try {
 			HandyMenUserProfile profile = usrProfileDao.getUser(usrName);
-			notificationService.sendUpdateReviewNotification(profile.getContactInfo(), review);
+			
+			String content = "User " + reviewUsrName + " update a review for you.";
+			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			HandyMenNotification notification = new HandyMenNotification(usrName,
+					df.format(new Date()), 
+					HandyMenNotification.TypeEnum.ReviewType, content);
+			
+			notificationService.sendNotification(profile.getContactInfo(), 
+					notification);
+			notificationDao.addHandyMenNotification(notification);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -533,13 +560,131 @@ public class UsrService {
 				"upload file successfully");
 	}
 	
+	@RequestMapping(value="/addUserChatMessage", method=RequestMethod.POST)
+	ResponseMessage addUserChatMessage(@RequestParam("usrName") String usrName, 
+			@RequestParam("peerUsrName") String peerUsrName,
+			@RequestParam("timeStamp") String timeStamp,
+			@RequestParam("content") String content) throws Exception
+	{
+		if(usrName.equals(peerUsrName)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"usrName and peerUsrName are the same");
+		}
+		
+		if(chatMessageDao.isChatMessageExist(usrName, peerUsrName, timeStamp)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"chat message already exist");
+		}
+		
+		if(!(usrProfileDao.isUserExit(usrName) && 
+				usrProfileDao.isUserExit(peerUsrName))) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user name or peer user name not valid");
+		}
+		
+		HandyMenChatMessage message = new HandyMenChatMessage(usrName, peerUsrName, 
+				timeStamp, content);
+		try {
+			chatMessageDao.addHandyMenChatMessage(message);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
+		try {
+			HandyMenUserProfile profile = usrProfileDao.getUser(peerUsrName);
+			notificationService.sendChatMessage(profile.getContactInfo(), 
+					message);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+				"add user chat message successfully");
+	}
 	
+	@RequestMapping(value="/deleteUserChatMessage", method=RequestMethod.POST)
+	ResponseMessage deleteUserChatMessage(
+			@RequestParam("usrName") String usrName,
+			@RequestParam("peerUsrName") String peerUsrName,
+			@RequestParam("timeStamp") String timeStamp) throws Exception
+	{
+		if(!chatMessageDao.isChatMessageExist(usrName, peerUsrName, timeStamp)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"chat message not exist");
+		}
+
+		try {
+			chatMessageDao.deleteHandyMenChatMessage(usrName, peerUsrName, timeStamp);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
+		return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+				"delete user chat message successfully");
+	}
 	
+	@RequestMapping(value="/listUserChatMessageByUserName", method=RequestMethod.GET)
+	List<HandyMenChatMessage> listUserChatMessageByUserName(
+			@RequestParam("usrName") String usrName) throws Exception
+	{
+		if(!usrProfileDao.isUserExit(usrName)) {
+			throw new Exception("user not exist");
+		}
+
+		try {
+			return chatMessageDao.listUsersChatMessages(usrName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 	
+    @RequestMapping(value="/listNotificationTypes", method=RequestMethod.GET)
+    ResponseMessage listNotificationTypes()
+	{
+    	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+    			HandyMenNotification.TypeEnum.getTypeStr());
+	}
 	
+	@RequestMapping(value="/deleteUserNotification", method=RequestMethod.POST)
+	ResponseMessage deleteUserNotification(
+			@RequestParam("usrName") String usrName,
+			@RequestParam("notificationType") String notificationType,
+			@RequestParam("timeStamp") String timeStamp) throws Exception
+	{
+		if(!notificationDao.isNotificationExist(usrName, notificationType, timeStamp)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"notification not exist");
+		}
+
+		try {
+			notificationDao.deleteHandyMenNotification(usrName, notificationType, timeStamp);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
+		return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+				"delete user notification successfully");
+	}
 	
-	
-	
+	@RequestMapping(value="/listUserNotificationByUserName", method=RequestMethod.GET)
+	List<HandyMenNotification> listUserNotificationByUserName(
+			@RequestParam("usrName") String usrName) throws Exception
+	{
+		if(!usrProfileDao.isUserExit(usrName)) {
+			throw new Exception("user not exist");
+		}
+
+		try {
+			return notificationDao.listUsersNotifications(usrName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 	
 	
 	

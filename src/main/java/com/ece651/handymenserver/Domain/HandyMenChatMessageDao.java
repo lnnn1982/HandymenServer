@@ -9,5 +9,5 @@ public interface HandyMenChatMessageDao {
     Boolean isChatMessageExist(String usrName, String peerUsrName,
 			String timeStamp)throws Exception;
 	
-    List<HandyMenChatMessageDao> listUsersChatMessages(String usrName) throws Exception;
+    List<HandyMenChatMessage> listUsersChatMessages(String usrName) throws Exception;
 }
