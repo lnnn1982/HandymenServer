@@ -340,5 +340,12 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
 			);
     	
     }
+    
+    public Boolean isUserPasswordValid(String usrName, String passwd)throws Exception {
+    	String sql = "select 1 from " + authTblName + " where usrName = ? and passwd = ? ";
+    	List<Map<String, Object>> list =  jdbcTemplate.queryForList(sql,
+    			new Object[]{usrName, passwd});
+    	return !list.isEmpty();
+    }
 	
 }

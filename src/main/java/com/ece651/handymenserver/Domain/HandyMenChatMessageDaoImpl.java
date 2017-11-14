@@ -19,34 +19,43 @@ public class HandyMenChatMessageDaoImpl implements HandyMenChatMessageDao {
 	
 	public void addHandyMenChatMessage(HandyMenChatMessage message) throws Exception {
     	String insertSql = "INSERT INTO " + chatMessageTblName + 
-    			"(usrName, peerUsrName, timeStamp, content) "
-    			+ " VALUES (?, ?, ?, ?)";
+    			"(usrName, peerUsrName, timeStamp, appUsrName, content) "
+    			+ " VALUES (?, ?, ?, ?, ?)";
     	jdbcTemplate.update(insertSql, new Object[]{
     			message.getUsrName(),
     			message.getPeerUsrName(),
     			message.getTimeStamp(),
+    			message.getUsrName(),
+    			message.getContent()});	
+    	
+    	jdbcTemplate.update(insertSql, new Object[]{
+    			message.getUsrName(),
+    			message.getPeerUsrName(),
+    			message.getTimeStamp(),
+    			message.getPeerUsrName(),
     			message.getContent()});	
 	}
 	
 	public void deleteHandyMenChatMessage(String usrName, String peerUsrName,
-			String timeStamp) throws Exception {
+			String timeStamp, String appUserName) throws Exception {
     	String deleteSql = "delete from " + chatMessageTblName + 
     			" where usrName = ? and peerUsrName = ? "
-    			+ "and timeStamp = ? ";
-    	jdbcTemplate.update(deleteSql, new Object[]{usrName, peerUsrName, timeStamp});	
+    			+ "and timeStamp = ? and appUsrName = ?";
+    	jdbcTemplate.update(deleteSql, new Object[]{usrName, peerUsrName, timeStamp, appUserName});	
 	}
 	
     public Boolean isChatMessageExist(String usrName, String peerUsrName,
-			String timeStamp)throws Exception {
+			String timeStamp, String appUserName)throws Exception {
     	String sql = "select 1 from " + chatMessageTblName + 
-    			" where usrName = ? and peerUsrName = ? and timeStamp = ? ";
+    			" where usrName = ? and peerUsrName = ? and timeStamp = ? "
+    			+ "and appUsrName = ?";
     	List<Map<String, Object>> list =  jdbcTemplate.queryForList(sql,
-    			new Object[]{usrName, peerUsrName, timeStamp});
+    			new Object[]{usrName, peerUsrName, timeStamp, appUserName});
     	return !list.isEmpty();
     }
 	
     public List<HandyMenChatMessage> listUsersChatMessages(String usrName) throws Exception {
-		String sql = "select * from " + chatMessageTblName + 
+		String sql = "select distinct usrName, peerUsrName, timeStamp, content from " + chatMessageTblName + 
 				" where usrName  = ? or peerUsrName = ?";    	
     	
     	return jdbcTemplate.query(sql,

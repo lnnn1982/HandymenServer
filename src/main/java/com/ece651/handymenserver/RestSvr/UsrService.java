@@ -36,19 +36,19 @@ public class UsrService {
 	@Autowired
 	private HandyMenNotificationDao notificationDao;
 	
-	Map<String, HandyMenUserProfile> waitUsers = new ConcurrentHashMap<>();
-	Map<String, String> usrNameVerifyCodeMap = new ConcurrentHashMap<>();
+	private Map<String, HandyMenUserProfile> waitUsers = new ConcurrentHashMap<>();
+	private Map<String, String> usrNameVerifyCodeMap = new ConcurrentHashMap<>();
 	
 	
 	@ExceptionHandler(Exception.class)
-	void handleException(HttpServletResponse response,
+	public void handleException(HttpServletResponse response,
 			Exception ex) throws IOException {
 	    response.sendError(HttpStatus.BAD_REQUEST.value(), 
 	    		ex.getMessage());
 	}
 	
 	@RequestMapping(value="/login", method=RequestMethod.GET)
-	ResponseMessage login(@RequestParam("usrName") String usrName,
+	public ResponseMessage login(@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
 	{
 		if(!usrProfileDao.isUserExit(usrName)) {
@@ -76,7 +76,7 @@ public class UsrService {
 	}
 	
 	@RequestMapping(value="/addUser", method=RequestMethod.GET)
-	ResponseMessage addUser(@RequestParam("usrName") String usrName, 
+	public ResponseMessage addUser(@RequestParam("usrName") String usrName, 
 			@RequestParam("emailAddr") String emailAddr,
 			@RequestParam(value="phoneNumList", defaultValue="") String phoneNumList,
 			@RequestParam(value="uploadFileNames", defaultValue="") String uploadFileNames,
@@ -119,7 +119,7 @@ public class UsrService {
 	}
 	
     @RequestMapping(value="/activateUser", method=RequestMethod.GET)
-	ResponseMessage activateUser(@RequestParam("usrName") String usrName, 
+	public ResponseMessage activateUser(@RequestParam("usrName") String usrName, 
 			@RequestParam("verificationCode") String code) throws Exception
 	{
     	String storeVeriCode = usrNameVerifyCodeMap.get(usrName);
@@ -151,14 +151,20 @@ public class UsrService {
 	}
 	
     @RequestMapping(value="/updateUserContactInfo", method=RequestMethod.GET)
-	ResponseMessage updateUserContactInfo(@RequestParam("usrName") String usrName, 
+	public ResponseMessage updateUserContactInfo(@RequestParam("usrName") String usrName, 
 			@RequestParam("emailAddr") String emailAddr,
 			@RequestParam("phoneNumList") String phoneNumList,
-			@RequestParam("uploadFileNames") String uploadFileNames) throws Exception
+			@RequestParam("uploadFileNames") String uploadFileNames,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
 		if(!usrProfileDao.checkUserAndEmail(usrName, emailAddr)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
 					"user name or email address is not valid");
+		}
+		
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user name or passwd not valid");
 		}
 		
 		HandyMenUserContactInfo contact = new HandyMenUserContactInfo(usrName);
@@ -178,12 +184,13 @@ public class UsrService {
 	}
     
     @RequestMapping(value="/updatePasswd", method=RequestMethod.GET)
-	ResponseMessage updatePasswd(@RequestParam("usrName") String usrName, 
+	public ResponseMessage updatePasswd(@RequestParam("usrName") String usrName, 
+			@RequestParam("oldPasswd") String oldPasswd,
 			@RequestParam("passwd") String passwd) throws Exception
 	{
-		if(!usrProfileDao.isUserExit(usrName)) {
+		if(!usrProfileDao.isUserPasswordValid(usrName, oldPasswd)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
-					"user not exist");
+					"user name or oldPasswd not valid");
 		}
 
     	try {
@@ -198,29 +205,41 @@ public class UsrService {
 	}
     
     @RequestMapping(value="/listServiceTypes", method=RequestMethod.GET)
-    ResponseMessage listServiceTypes()
+    public ResponseMessage listServiceTypes(@RequestParam("usrName") String usrName, 
+			@RequestParam("passwd") String passwd) throws Exception
 	{
+    	if(usrName.equalsIgnoreCase(HandyMenUserContactInfo.GUEST_USR_NAME)) {
+        	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+    				HandyMenSvrTypeEnum.getTypeStr());	
+    	}
+
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user name or passwd not valid");
+		}
+		
     	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
 				HandyMenSvrTypeEnum.getTypeStr());
 	}
     
     @RequestMapping(value="/addUserServiceInfo", method=RequestMethod.POST)
-	ResponseMessage addUserServiceInfo(
+	public ResponseMessage addUserServiceInfo(
 			@RequestParam("usrName") String usrName, 
 			@RequestParam("type") String type,
 			@RequestParam(value="area", defaultValue="") String area,
 			@RequestParam(value="description", defaultValue="") String description,
 			@RequestParam(value="priceRange", defaultValue="") String priceRange,
-			@RequestParam(value="uploadFileNames", defaultValue="") String uploadFileNames) throws Exception
+			@RequestParam(value="uploadFileNames", defaultValue="") String uploadFileNames,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
 		if(!HandyMenSvrTypeEnum.isTypeValid(type)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
 					"type not valid");
 		}
 		
-		if(!usrProfileDao.isUserExit(usrName)) {
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
-					"user not exist");
+					"user name or passwd not valid");
 		}
 		
 		if(usrProfileDao.isUsrServiceTypeExist(usrName, type)) {
@@ -247,17 +266,23 @@ public class UsrService {
 	}
     
     @RequestMapping(value="/updateUserServiceInfo", method=RequestMethod.POST)
-	ResponseMessage updateUserServiceInfo(
+	public ResponseMessage updateUserServiceInfo(
 			@RequestParam("usrName") String usrName, 
 			@RequestParam("type") String type,
 			@RequestParam("area") String area,
 			@RequestParam("description") String description,
 			@RequestParam("priceRange") String priceRange,
-			@RequestParam("uploadFileNames") String uploadFileNames) throws Exception
+			@RequestParam("uploadFileNames") String uploadFileNames,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
 		if(!HandyMenSvrTypeEnum.isTypeValid(type)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
 					"type not valid");
+		}
+		
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user name or passwd not valid");
 		}
     	
 		if(!usrProfileDao.isUsrServiceTypeExist(usrName, type)) {
@@ -284,13 +309,19 @@ public class UsrService {
 	}    
     
     @RequestMapping(value="/deleteUserServiceInfo", method=RequestMethod.GET)
-	ResponseMessage deleteUserServiceInfo(
+	public ResponseMessage deleteUserServiceInfo(
 			@RequestParam("usrName") String usrName, 
-			@RequestParam("type") String type) throws Exception
+			@RequestParam("type") String type,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
 		if(!HandyMenSvrTypeEnum.isTypeValid(type)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
 					"type not valid");
+		}
+		
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user name or passwd not valid");
 		}
     	
 		if(!usrProfileDao.isUsrServiceTypeExist(usrName, type)) {
@@ -310,10 +341,11 @@ public class UsrService {
 	}
 	
 	@RequestMapping("/getUserProfile")
-	HandyMenUserProfile getUserProfile(@RequestParam("usrName") String usrName) throws Exception
+	public HandyMenUserProfile getUserProfile(@RequestParam("usrName") String usrName,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
-		if(!usrProfileDao.isUserExit(usrName)) {
-			throw new Exception("user not exist");
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+			throw new Exception("user name or passwd not valid");
 		}
 		
 		try {
@@ -326,11 +358,12 @@ public class UsrService {
 	}
 	
 	@RequestMapping("/deleteUser")
-	ResponseMessage deleteUser(@RequestParam("usrName") String usrName) throws Exception
+	public ResponseMessage deleteUser(@RequestParam("usrName") String usrName,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
-		if(!usrProfileDao.isUserExit(usrName)) {
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
-					"user not exist");
+					"user name or passwd not valid");
 		}
 		
 		try {
@@ -345,7 +378,9 @@ public class UsrService {
 	}	
 	
 	@RequestMapping("/listAllServiceUsers")
-	List<HandyMenUserProfile> listAllServiceUsers(@RequestParam("usrName") String usrName) throws Exception
+	public List<HandyMenUserProfile> listAllServiceUsers(
+			@RequestParam("usrName") String usrName,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
 		if(usrName.equalsIgnoreCase(HandyMenUserContactInfo.GUEST_USR_NAME)) {
 			try {
@@ -356,8 +391,8 @@ public class UsrService {
 			}
 		}
 		else {
-			if(!usrProfileDao.isUserExit(usrName)) {
-				throw new Exception("user not exist");
+			if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+				throw new Exception("user name or passwd not valid");
 			}
 			
 			try {
@@ -370,9 +405,10 @@ public class UsrService {
 	}
 	
 	@RequestMapping("/listServiceUsersByServiceType")
-	List<HandyMenUserProfile> listServiceUsersByServiceType(
+	public List<HandyMenUserProfile> listServiceUsersByServiceType(
 			@RequestParam("usrName") String usrName,
-			@RequestParam("type") String type) throws Exception
+			@RequestParam("type") String type,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
 		if(!HandyMenSvrTypeEnum.isTypeValid(type)) {
 			throw new Exception("service type not valid");
@@ -387,8 +423,8 @@ public class UsrService {
 			}
 		}
 		else {
-			if(!usrProfileDao.isUserExit(usrName)) {
-				throw new Exception("user not exist");
+			if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+				throw new Exception("user name or passwd not valid");
 			}
 			
 			try {
@@ -401,15 +437,21 @@ public class UsrService {
 	}
 	
 	@RequestMapping(value="/addUserReview", method=RequestMethod.POST)
-	ResponseMessage addUserReview(@RequestParam("usrName") String usrName, 
+	public ResponseMessage addUserReview(@RequestParam("usrName") String usrName, 
 			@RequestParam("reviewUsrName") String reviewUsrName,
 			@RequestParam("svrType") String svrType,
 			@RequestParam(value="reviewContent", defaultValue="") String reviewContent,
-			@RequestParam("rank") int rank) throws Exception
+			@RequestParam("rank") int rank,
+			@RequestParam("reviewUsrPasswd") String reviewUsrPasswd) throws Exception
 	{
 		if(usrName.equals(reviewUsrName)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
 					"review user the same as user");
+		}
+		
+		if(!usrProfileDao.isUserPasswordValid(reviewUsrName, reviewUsrPasswd)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"review user name or passwd not valid");
 		}
 		
 		if(usrReviewDao.isReviewExist(usrName, reviewUsrName, svrType)) {
@@ -460,15 +502,21 @@ public class UsrService {
 	}
 	
 	@RequestMapping(value="/updateUserReview", method=RequestMethod.POST)
-	ResponseMessage updateUserReview(@RequestParam("usrName") String usrName, 
+	public ResponseMessage updateUserReview(@RequestParam("usrName") String usrName, 
 			@RequestParam("reviewUsrName") String reviewUsrName,
 			@RequestParam("svrType") String svrType,
 			@RequestParam("reviewContent") String reviewContent,
-			@RequestParam("rank") int rank) throws Exception
+			@RequestParam("rank") int rank,
+			@RequestParam("reviewUsrPasswd") String reviewUsrPasswd) throws Exception
 	{
 		if(!usrReviewDao.isReviewExist(usrName, reviewUsrName, svrType)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
 					"review not exist");
+		}
+		
+		if(!usrProfileDao.isUserPasswordValid(reviewUsrName, reviewUsrPasswd)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"review user name or passwd not valid");
 		}
 		
 		HandyMenUserReview review = new HandyMenUserReview(usrName, reviewUsrName, 
@@ -501,11 +549,12 @@ public class UsrService {
 	}
 	
 	@RequestMapping(value="/listReviewByUserName", method=RequestMethod.GET)
-	List<HandyMenUserReview> listReviewByUserName(
-			@RequestParam("usrName") String usrName) throws Exception
+	public List<HandyMenUserReview> listReviewByUserName(
+			@RequestParam("usrName") String usrName,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
-		if(!usrProfileDao.isUserExit(usrName)) {
-			throw new Exception("user not exist");
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+			throw new Exception("user name or passwd not valid");
 		}
 
 		try {
@@ -517,11 +566,17 @@ public class UsrService {
 	}
 	
 	@RequestMapping(value="/deleteUserReview", method=RequestMethod.GET)
-	ResponseMessage deleteUserReview(
+	public ResponseMessage deleteUserReview(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("reviewUsrName") String reviewUsrName,
-			@RequestParam("svrType") String svrType) throws Exception
+			@RequestParam("svrType") String svrType,
+			@RequestParam("reviewUsrPasswd") String reviewUsrPasswd) throws Exception
 	{
+		if(!usrProfileDao.isUserPasswordValid(reviewUsrName, reviewUsrPasswd)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"review user name or passwd not valid");
+		}
+		
 		if(!usrReviewDao.isReviewExist(usrName, reviewUsrName, svrType)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
 					"review not exist");
@@ -540,13 +595,14 @@ public class UsrService {
 	
 	
 	@RequestMapping(value="/uploadFile", method=RequestMethod.POST)
-	ResponseMessage uploadFile(
+	public ResponseMessage uploadFile(
 			@RequestParam("usrName") String usrName,
-			@RequestParam("file") MultipartFile file) throws Exception
+			@RequestParam("file") MultipartFile file,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
-		if(!usrProfileDao.isUserExit(usrName)) {
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
-					"user not exist");
+					"user name or passwd not valid");
 		}
 		
 		try {
@@ -561,17 +617,28 @@ public class UsrService {
 	}
 	
 	@RequestMapping(value="/addUserChatMessage", method=RequestMethod.POST)
-	ResponseMessage addUserChatMessage(@RequestParam("usrName") String usrName, 
+	public ResponseMessage addUserChatMessage(@RequestParam("usrName") String usrName, 
 			@RequestParam("peerUsrName") String peerUsrName,
 			@RequestParam("timeStamp") String timeStamp,
-			@RequestParam("content") String content) throws Exception
+			@RequestParam("content") String content,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
 		if(usrName.equals(peerUsrName)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
 					"usrName and peerUsrName are the same");
 		}
 		
-		if(chatMessageDao.isChatMessageExist(usrName, peerUsrName, timeStamp)) {
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user name or passwd not valid");
+		}
+		
+		if(chatMessageDao.isChatMessageExist(usrName, peerUsrName, timeStamp, usrName)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"chat message already exist");
+		}
+		
+		if(chatMessageDao.isChatMessageExist(usrName, peerUsrName, timeStamp, peerUsrName)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
 					"chat message already exist");
 		}
@@ -604,18 +671,25 @@ public class UsrService {
 	}
 	
 	@RequestMapping(value="/deleteUserChatMessage", method=RequestMethod.POST)
-	ResponseMessage deleteUserChatMessage(
+	public ResponseMessage deleteUserChatMessage(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("peerUsrName") String peerUsrName,
-			@RequestParam("timeStamp") String timeStamp) throws Exception
+			@RequestParam("timeStamp") String timeStamp,
+			@RequestParam("appUser") String appUser,
+			@RequestParam("appUserPasswd") String appUserPasswd) throws Exception
 	{
-		if(!chatMessageDao.isChatMessageExist(usrName, peerUsrName, timeStamp)) {
+		if(!usrProfileDao.isUserPasswordValid(appUser, appUserPasswd)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user name or passwd not valid");
+		}
+		
+		if(!chatMessageDao.isChatMessageExist(usrName, peerUsrName, timeStamp, appUser)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
 					"chat message not exist");
 		}
 
 		try {
-			chatMessageDao.deleteHandyMenChatMessage(usrName, peerUsrName, timeStamp);
+			chatMessageDao.deleteHandyMenChatMessage(usrName, peerUsrName, timeStamp, appUser);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -626,11 +700,12 @@ public class UsrService {
 	}
 	
 	@RequestMapping(value="/listUserChatMessageByUserName", method=RequestMethod.GET)
-	List<HandyMenChatMessage> listUserChatMessageByUserName(
-			@RequestParam("usrName") String usrName) throws Exception
+	public List<HandyMenChatMessage> listUserChatMessageByUserName(
+			@RequestParam("usrName") String usrName,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
-		if(!usrProfileDao.isUserExit(usrName)) {
-			throw new Exception("user not exist");
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+			throw new Exception("user name or passwd not valid");
 		}
 
 		try {
@@ -642,18 +717,36 @@ public class UsrService {
 	}
 	
     @RequestMapping(value="/listNotificationTypes", method=RequestMethod.GET)
-    ResponseMessage listNotificationTypes()
+    public ResponseMessage listNotificationTypes(
+    		@RequestParam("usrName") String usrName,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
-    	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+    	if(usrName.equalsIgnoreCase(HandyMenUserContactInfo.GUEST_USR_NAME)) {
+        	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+        			HandyMenNotification.TypeEnum.getTypeStr());
+    	}
+    	
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user name or passwd not valid");
+		}
+		
+		return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
     			HandyMenNotification.TypeEnum.getTypeStr());
 	}
 	
 	@RequestMapping(value="/deleteUserNotification", method=RequestMethod.POST)
-	ResponseMessage deleteUserNotification(
+	public ResponseMessage deleteUserNotification(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("notificationType") String notificationType,
-			@RequestParam("timeStamp") String timeStamp) throws Exception
+			@RequestParam("timeStamp") String timeStamp,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"user name or passwd not valid");
+		}
+		
 		if(!notificationDao.isNotificationExist(usrName, notificationType, timeStamp)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
 					"notification not exist");
@@ -671,11 +764,12 @@ public class UsrService {
 	}
 	
 	@RequestMapping(value="/listUserNotificationByUserName", method=RequestMethod.GET)
-	List<HandyMenNotification> listUserNotificationByUserName(
-			@RequestParam("usrName") String usrName) throws Exception
+	public List<HandyMenNotification> listUserNotificationByUserName(
+			@RequestParam("usrName") String usrName,
+			@RequestParam("passwd") String passwd) throws Exception
 	{
-		if(!usrProfileDao.isUserExit(usrName)) {
-			throw new Exception("user not exist");
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+			throw new Exception("user name or passwd not valid");
 		}
 
 		try {
@@ -685,8 +779,6 @@ public class UsrService {
 			throw e;
 		}
 	}
-	
-	
 	
 	
 	

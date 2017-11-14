@@ -29,4 +29,6 @@ public interface HandyMenUserProfileDao {
     
     void updatePasswd(String usr, String passwd) throws Exception;
     HandyMenUserAuth getUsrAuth(String usrName)throws Exception;
+    
+    Boolean isUserPasswordValid(String usrName, String passwd)throws Exception;
 }
