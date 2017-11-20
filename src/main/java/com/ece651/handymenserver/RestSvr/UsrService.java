@@ -47,7 +47,7 @@ public class UsrService {
 	    		ex.getMessage());
 	}
 	
-	@RequestMapping(value="/login", method=RequestMethod.GET)
+	@RequestMapping(value="/login", method=RequestMethod.POST)
 	public ResponseMessage login(@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
 	{
@@ -75,7 +75,7 @@ public class UsrService {
 		}
 	}
 	
-	@RequestMapping(value="/addUser", method=RequestMethod.GET)
+	@RequestMapping(value="/addUser", method=RequestMethod.POST)
 	public ResponseMessage addUser(@RequestParam("usrName") String usrName, 
 			@RequestParam("emailAddr") String emailAddr,
 			@RequestParam(value="phoneNumList", defaultValue="") String phoneNumList,
@@ -118,7 +118,7 @@ public class UsrService {
 				+ " verification code:" + verificationCode);
 	}
 	
-    @RequestMapping(value="/activateUser", method=RequestMethod.GET)
+    @RequestMapping(value="/activateUser", method=RequestMethod.POST)
 	public ResponseMessage activateUser(@RequestParam("usrName") String usrName, 
 			@RequestParam("verificationCode") String code) throws Exception
 	{
@@ -150,7 +150,7 @@ public class UsrService {
 				"activate user successfully");
 	}
 	
-    @RequestMapping(value="/updateUserContactInfo", method=RequestMethod.GET)
+    @RequestMapping(value="/updateUserContactInfo", method=RequestMethod.POST)
 	public ResponseMessage updateUserContactInfo(@RequestParam("usrName") String usrName, 
 			@RequestParam("emailAddr") String emailAddr,
 			@RequestParam("phoneNumList") String phoneNumList,
@@ -183,7 +183,7 @@ public class UsrService {
 				"update contact info successfully");
 	}
     
-    @RequestMapping(value="/updatePasswd", method=RequestMethod.GET)
+    @RequestMapping(value="/updatePasswd", method=RequestMethod.POST)
 	public ResponseMessage updatePasswd(@RequestParam("usrName") String usrName, 
 			@RequestParam("oldPasswd") String oldPasswd,
 			@RequestParam("passwd") String passwd) throws Exception
@@ -204,13 +204,51 @@ public class UsrService {
 				"update password successfully");
 	}
     
-    @RequestMapping(value="/listServiceTypes", method=RequestMethod.GET)
-    public ResponseMessage listServiceTypes(@RequestParam("usrName") String usrName, 
+    @RequestMapping(value="/listServiceTypes", method=RequestMethod.POST)
+    public List<HandyMenSvrTypeInfo> listServiceTypes(@RequestParam("usrName") String usrName, 
 			@RequestParam("passwd") String passwd) throws Exception
 	{
     	if(usrName.equalsIgnoreCase(HandyMenUserContactInfo.GUEST_USR_NAME)) {
-        	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
-    				HandyMenSvrTypeEnum.getTypeStr());	
+        	try {
+        		return usrProfileDao.listServiceTypeInfos();
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    			throw e;
+    		}
+    	}
+
+		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
+			throw new Exception("user name or passwd not valid");
+		}
+		
+    	try {
+    		return usrProfileDao.listServiceTypeInfos();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+    
+    @RequestMapping(value="/setUploadFileNamesToOneServiceType", method=RequestMethod.POST)
+    public ResponseMessage setUploadFileNamesToOneServiceType(@RequestParam("usrName") String usrName, 
+			@RequestParam("passwd") String passwd,
+			@RequestParam("id") int id,
+			@RequestParam("uploadFileNames") String uploadFileNames) throws Exception
+	{
+		if(!HandyMenSvrTypeEnum.isIdValid(id)) {
+			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
+					"id not valid");
+		}
+    	
+    	if(usrName.equalsIgnoreCase(HandyMenUserContactInfo.GUEST_USR_NAME)) {
+        	try {
+        		usrProfileDao.setUploadFileNamesToOneServiceType(id, uploadFileNames);
+        		return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+        				"set uploadFileNames successfully");
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    			throw e;
+    		}
     	}
 
 		if(!usrProfileDao.isUserPasswordValid(usrName, passwd)) {
@@ -218,8 +256,14 @@ public class UsrService {
 					"user name or passwd not valid");
 		}
 		
-    	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
-				HandyMenSvrTypeEnum.getTypeStr());
+    	try {
+    		usrProfileDao.setUploadFileNamesToOneServiceType(id, uploadFileNames);
+        	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
+    				"set uploadFileNames successfully");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
     
     @RequestMapping(value="/addUserServiceInfo", method=RequestMethod.POST)
@@ -308,7 +352,7 @@ public class UsrService {
 				"update user service info successfully");
 	}    
     
-    @RequestMapping(value="/deleteUserServiceInfo", method=RequestMethod.GET)
+    @RequestMapping(value="/deleteUserServiceInfo", method=RequestMethod.POST)
 	public ResponseMessage deleteUserServiceInfo(
 			@RequestParam("usrName") String usrName, 
 			@RequestParam("type") String type,
@@ -340,7 +384,7 @@ public class UsrService {
 				"delete user service info successfully");
 	}
 	
-	@RequestMapping("/getUserProfile")
+	@RequestMapping(value="/getUserProfile", method=RequestMethod.POST)
 	public HandyMenUserProfile getUserProfile(@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
 	{
@@ -357,7 +401,7 @@ public class UsrService {
 		}
 	}
 	
-	@RequestMapping("/deleteUser")
+	@RequestMapping(value="/deleteUser", method=RequestMethod.POST)
 	public ResponseMessage deleteUser(@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
 	{
@@ -377,7 +421,7 @@ public class UsrService {
 				"delete user successfully");
 	}	
 	
-	@RequestMapping("/listAllServiceUsers")
+	@RequestMapping(value="/listAllServiceUsers", method=RequestMethod.POST)
 	public List<HandyMenUserProfile> listAllServiceUsers(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
@@ -404,7 +448,7 @@ public class UsrService {
 		}
 	}
 	
-	@RequestMapping("/listServiceUsersByServiceType")
+	@RequestMapping(value="/listServiceUsersByServiceType", method=RequestMethod.POST)
 	public List<HandyMenUserProfile> listServiceUsersByServiceType(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("type") String type,
@@ -548,7 +592,7 @@ public class UsrService {
 				"update user review successfully");
 	}
 	
-	@RequestMapping(value="/listReviewByUserName", method=RequestMethod.GET)
+	@RequestMapping(value="/listReviewByUserName", method=RequestMethod.POST)
 	public List<HandyMenUserReview> listReviewByUserName(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
@@ -565,7 +609,7 @@ public class UsrService {
 		}
 	}
 	
-	@RequestMapping(value="/deleteUserReview", method=RequestMethod.GET)
+	@RequestMapping(value="/deleteUserReview", method=RequestMethod.POST)
 	public ResponseMessage deleteUserReview(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("reviewUsrName") String reviewUsrName,
@@ -699,7 +743,7 @@ public class UsrService {
 				"delete user chat message successfully");
 	}
 	
-	@RequestMapping(value="/listUserChatMessageByUserName", method=RequestMethod.GET)
+	@RequestMapping(value="/listUserChatMessageByUserName", method=RequestMethod.POST)
 	public List<HandyMenChatMessage> listUserChatMessageByUserName(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
@@ -716,7 +760,7 @@ public class UsrService {
 		}
 	}
 	
-    @RequestMapping(value="/listNotificationTypes", method=RequestMethod.GET)
+    @RequestMapping(value="/listNotificationTypes", method=RequestMethod.POST)
     public ResponseMessage listNotificationTypes(
     		@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
@@ -763,7 +807,7 @@ public class UsrService {
 				"delete user notification successfully");
 	}
 	
-	@RequestMapping(value="/listUserNotificationByUserName", method=RequestMethod.GET)
+	@RequestMapping(value="/listUserNotificationByUserName", method=RequestMethod.POST)
 	public List<HandyMenNotification> listUserNotificationByUserName(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception

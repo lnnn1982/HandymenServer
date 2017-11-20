@@ -6,17 +6,10 @@ public enum HandyMenSvrTypeEnum {
 	CARPENTER_TYPE,
 	ELECTRICIAN_TYPE,
 	BABYSITER_TYPE,
+	INTERIORPAITING_TYPE,
+	HOMECLEANING_TYPE,
+	LANDSCAPING_TYPE,
 	OTHER_TYPE;
-	
-    public static String getTypeStr() {
-    	String str = PLUMBER_TYPE.toString() + "," + 
-    			CARPENTER_TYPE.toString() + "," + 
-    			ELECTRICIAN_TYPE.toString() + "," +
-    			BABYSITER_TYPE.toString() + "," +
-    			OTHER_TYPE.toString();
-    	
-    	return str;
-    }
     
     public static Boolean isTypeValid(String type) {
     	try {
@@ -25,6 +18,10 @@ public enum HandyMenSvrTypeEnum {
 		} catch (Exception e) {
 			return false;
 		}
+    }
+    
+    public static Boolean isIdValid(int id) {
+    	return (id >= 1) && (id <= 8);
     }
 
 	

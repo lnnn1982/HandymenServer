@@ -11,6 +11,9 @@ public interface HandyMenUserProfileDao {
     void updateUserServiceInfo(HandyMenUsrServiceInfo serviceInfo) throws Exception;
     void deleteServiceInfo(String userName, String type) throws Exception;
     
+    List<HandyMenSvrTypeInfo> listServiceTypeInfos() throws Exception;
+    void setUploadFileNamesToOneServiceType(int id, String uploadFileNames) throws Exception;
+    
     HandyMenUserProfile getUser(String usrName)throws Exception;
     void deleteUser(String userName)throws Exception;
     

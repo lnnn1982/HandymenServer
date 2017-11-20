@@ -41,6 +41,7 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
     final private String usrServiceTblName = "HandyMenServiceInfo";
     final private String authTblName = "HandyMenUserAuth";
     final private String reviewTblName = "HandyMenUserReview";
+    final private String serviceTypeTblName = "HandyMenServiceTypeInfo";
 	
     public void addUserBasicInfo(HandyMenUserContactInfo contactInfo,
     		HandyMenUserAuth auth) throws Exception {
@@ -120,6 +121,35 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
     	jdbcTemplate.update(deleteReviewSql, new Object[]{userName, userName});
     }   
 	
+    public List<HandyMenSvrTypeInfo> listServiceTypeInfos() throws Exception {
+    	String sql = "select * from " + serviceTypeTblName;
+
+    	return jdbcTemplate.query(sql,  
+    			getServiceTypeRowMapper());
+    }
+    
+    private RowMapper getServiceTypeRowMapper() {
+    	
+    	return new RowMapper(){
+			
+		    @Override
+	        public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+		    	HandyMenSvrTypeInfo typeInfo = new HandyMenSvrTypeInfo(
+		    			Enum.valueOf(HandyMenSvrTypeEnum.class, rs.getString("serviceType")),
+		    			rs.getInt("id"),
+		    			rs.getString("uploadFileNames"));
+
+		        return typeInfo;
+	        }
+        };
+    }
+    
+    public void setUploadFileNamesToOneServiceType(int id, String uploadFileNames) throws Exception {
+    	String updateSql = "update " + serviceTypeTblName + " set uploadFileNames = ? " 
+                +  " where id = ?";
+    	jdbcTemplate.update(updateSql, new Object[]{uploadFileNames, id});
+    }
+    
     public HandyMenUserProfile getUser(String usrName) throws Exception {
     	return getUser(usrName, true);
     }
