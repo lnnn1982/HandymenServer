@@ -2,20 +2,20 @@ package com.ece651.handymenserver.Domain;
 
 public class HandyMenUsrServiceInfo {
     private String usrName = "";
-	private HandyMenSvrTypeEnum type = HandyMenSvrTypeEnum.OTHER_TYPE;
+	private HandyMenSvrTypeInfo svrTypeInfo;
 	private String area = "";
 	private String description = "";
 	private String priceRange = "";
 	private String uploadFileNames = "";
     private int reviewRank = 0;
 	
-	public HandyMenUsrServiceInfo(HandyMenSvrTypeEnum type, String usrName) {
-		this.type = type;
+	public HandyMenUsrServiceInfo(HandyMenSvrTypeInfo svrTypeInfo, String usrName) {
+		this.svrTypeInfo = svrTypeInfo;
 		this.usrName = usrName;
 	}
 	
-	public HandyMenSvrTypeEnum getType() {
-		return type;
+	public HandyMenSvrTypeInfo getSvrTypeInfo() {
+		return svrTypeInfo;
 	}
 	
 	public String getUsrName() {
@@ -53,7 +53,6 @@ public class HandyMenUsrServiceInfo {
     public int getReviewRank() {
     	return reviewRank;
     }
-	
 	
 	public void setUploadFileNames(String uploadFileNames) {
 		this.uploadFileNames = uploadFileNames;

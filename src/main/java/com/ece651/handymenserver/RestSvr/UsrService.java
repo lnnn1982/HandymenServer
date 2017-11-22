@@ -229,22 +229,25 @@ public class UsrService {
 		}
 	}
     
-    @RequestMapping(value="/setUploadFileNamesToOneServiceType", method=RequestMethod.POST)
-    public ResponseMessage setUploadFileNamesToOneServiceType(@RequestParam("usrName") String usrName, 
+    @RequestMapping(value="/setOneServiceTypeInfo", method=RequestMethod.POST)
+    public ResponseMessage setOneServiceTypeInfo(@RequestParam("usrName") String usrName, 
 			@RequestParam("passwd") String passwd,
-			@RequestParam("id") int id,
-			@RequestParam("uploadFileNames") String uploadFileNames) throws Exception
+			@RequestParam("svrTypeId") int svrTypeId,
+			@RequestParam("svrTypeUploadFileNames") String svrTypeUploadFileNames,
+			@RequestParam("svrTypePrice") String svrTypePrice,
+			@RequestParam("occasion") String occasion) throws Exception
 	{
-		if(!HandyMenSvrTypeEnum.isIdValid(id)) {
+		if(!HandyMenSvrTypeEnum.isIdValid(svrTypeId)) {
 			return new ResponseMessage(ResponseMessage.OpStatus.OP_FAIL, 
-					"id not valid");
+					"svrTypeId not valid");
 		}
     	
     	if(usrName.equalsIgnoreCase(HandyMenUserContactInfo.GUEST_USR_NAME)) {
         	try {
-        		usrProfileDao.setUploadFileNamesToOneServiceType(id, uploadFileNames);
+        		usrProfileDao.setOneServiceTypeInfo(svrTypeId, svrTypeUploadFileNames,
+        				svrTypePrice, occasion);
         		return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
-        				"set uploadFileNames successfully");
+        				"set One servicetype info successfully");
     		} catch (Exception e) {
     			e.printStackTrace();
     			throw e;
@@ -257,9 +260,10 @@ public class UsrService {
 		}
 		
     	try {
-    		usrProfileDao.setUploadFileNamesToOneServiceType(id, uploadFileNames);
+    		usrProfileDao.setOneServiceTypeInfo(svrTypeId, svrTypeUploadFileNames,
+    				svrTypePrice, occasion);
         	return new ResponseMessage(ResponseMessage.OpStatus.OP_OK, 
-    				"set uploadFileNames successfully");
+    				"set One servicetype info successfully");
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -291,8 +295,9 @@ public class UsrService {
 					"user and service type already exist");
 		}
 		
+		HandyMenSvrTypeInfo svrTypeInfo = usrProfileDao.getOneServieTypeInfo(type);
 		HandyMenUsrServiceInfo serviceInfo = new HandyMenUsrServiceInfo(
-				Enum.valueOf(HandyMenSvrTypeEnum.class, type), usrName);
+				svrTypeInfo, usrName);
 		serviceInfo.setArea(area);
 		serviceInfo.setDescription(description);
 		serviceInfo.setPriceRange(priceRange);
@@ -334,8 +339,9 @@ public class UsrService {
 					"user and service type not exist");
 		}
 		
+		HandyMenSvrTypeInfo svrTypeInfo = usrProfileDao.getOneServieTypeInfo(type);
 		HandyMenUsrServiceInfo serviceInfo = new HandyMenUsrServiceInfo(
-				Enum.valueOf(HandyMenSvrTypeEnum.class, type), usrName);
+				svrTypeInfo, usrName);
 		serviceInfo.setArea(area);
 		serviceInfo.setDescription(description);
 		serviceInfo.setPriceRange(priceRange);

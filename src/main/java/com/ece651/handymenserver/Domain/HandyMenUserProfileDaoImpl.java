@@ -75,7 +75,7 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
     			+ "area, description, priceRange, uploadFileNames) " + 
     			"VALUES (?, ?, ?, ?, ?, ?)";
     	jdbcTemplate.update(insertSvrTblSql, new Object[]{
-    			serviceInfo.getUsrName(), serviceInfo.getType().toString(),
+    			serviceInfo.getUsrName(), serviceInfo.getSvrTypeInfo().getSvrType().toString(),
     			serviceInfo.getArea(), 
     			serviceInfo.getDescription(),
     			serviceInfo.getPriceRange(),
@@ -83,7 +83,7 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
     }    
 
     public void updateUserServiceInfo(HandyMenUsrServiceInfo serviceInfo) throws Exception {
-    	deleteServiceInfo(serviceInfo.getUsrName(), serviceInfo.getType().toString());
+    	deleteServiceInfo(serviceInfo.getUsrName(), serviceInfo.getSvrTypeInfo().getSvrType().toString());
     	addUserServiceInfo(serviceInfo);
     }
     
@@ -128,6 +128,11 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
     			getServiceTypeRowMapper());
     }
     
+    public HandyMenSvrTypeInfo getOneServieTypeInfo(String svrType) throws Exception {
+    	List<HandyMenSvrTypeInfo> svrTypeInfos = listServiceTypeInfos();
+    	return getSvrTypeInfo(svrType, svrTypeInfos);
+    }
+    
     private RowMapper getServiceTypeRowMapper() {
     	
     	return new RowMapper(){
@@ -135,19 +140,23 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
 		    @Override
 	        public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
 		    	HandyMenSvrTypeInfo typeInfo = new HandyMenSvrTypeInfo(
-		    			Enum.valueOf(HandyMenSvrTypeEnum.class, rs.getString("serviceType")),
-		    			rs.getInt("id"),
-		    			rs.getString("uploadFileNames"));
+		    			Enum.valueOf(HandyMenSvrTypeEnum.class, rs.getString("svrType")),
+		    			rs.getInt("svrTypeId"),
+		    			rs.getString("svrTypeUploadFileNames"),
+		    			rs.getString("svrTypePrice"),
+		    			rs.getString("occasion"));
 
 		        return typeInfo;
 	        }
         };
     }
     
-    public void setUploadFileNamesToOneServiceType(int id, String uploadFileNames) throws Exception {
-    	String updateSql = "update " + serviceTypeTblName + " set uploadFileNames = ? " 
-                +  " where id = ?";
-    	jdbcTemplate.update(updateSql, new Object[]{uploadFileNames, id});
+    public void setOneServiceTypeInfo(int svrTypeId, String svrTypeUploadFileNames,
+    		String svrTypePrice, String occasion) throws Exception {
+    	String updateSql = "update " + serviceTypeTblName + " set svrTypeUploadFileNames = ?, " 
+                +  "svrTypePrice = ?,  occasion = ? where svrTypeId = ? ";
+    	jdbcTemplate.update(updateSql, new Object[]{svrTypeUploadFileNames,
+    			svrTypePrice, occasion, svrTypeId});
     }
     
     public HandyMenUserProfile getUser(String usrName) throws Exception {
@@ -155,6 +164,8 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
     }
 
 	private HandyMenUserProfile getUser(String usrName, Boolean isFull) throws Exception {
+		List<HandyMenSvrTypeInfo> svrTypeInfos = listServiceTypeInfos();
+		
 		String sql = "select * from " + usrContactTblName + 
 				" where usrName  = ? ";
 		
@@ -168,7 +179,7 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
     	List<HandyMenUsrServiceInfo> services = jdbcTemplate.query(
     			sql,
     			new Object[] { usrName},
-    			getServiceInfoRowMapper());
+    			getServiceInfoRowMapper(svrTypeInfos));
     	
     	sql = "select usrName, svrType, cast(avg(rank) as SIGNED) avgRank from "
     			+ reviewTblName + " where usrName = ? "
@@ -199,7 +210,7 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
 		}
     	
     	for (HandyMenUsrServiceInfo service : services) {
-    		String key = service.getUsrName() + "_" + service.getType().toString();
+    		String key = service.getUsrName() + "_" + service.getSvrTypeInfo().getSvrType().toString();
     		Integer rank = usrSvrRankMap.get(key);
     		if(rank != null) {
     			service.setReivewRank(rank);
@@ -282,14 +293,14 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
         };
     }
 	
-    private RowMapper getServiceInfoRowMapper() {
+    private RowMapper getServiceInfoRowMapper(List<HandyMenSvrTypeInfo> svrTypeInfos) {
     	
     	return new RowMapper(){
 			
 		    @Override
 	        public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
    			    HandyMenUsrServiceInfo service = new HandyMenUsrServiceInfo(
-			    			Enum.valueOf(HandyMenSvrTypeEnum.class, rs.getString("type")),
+   			    getSvrTypeInfo(rs.getString("type"), svrTypeInfos),
 			    		    rs.getString("usrName"));
    			    service.setArea(rs.getString("area"));
 			    service.setDescription(rs.getString("description"));
@@ -299,6 +310,16 @@ public class HandyMenUserProfileDaoImpl implements HandyMenUserProfileDao{
 			    return service;
 	        }
         };
+    }
+    
+    private HandyMenSvrTypeInfo getSvrTypeInfo(String svrType, List<HandyMenSvrTypeInfo> svrTypeInfos) {
+    	for (HandyMenSvrTypeInfo handyMenSvrTypeInfo : svrTypeInfos) {
+    		if(handyMenSvrTypeInfo.getSvrType().toString().equals(svrType)) {
+    			return handyMenSvrTypeInfo;
+    		}
+		}
+    	
+    	return null;
     }
 	
 	private RowMapper getUserServiceRankMapper() {
