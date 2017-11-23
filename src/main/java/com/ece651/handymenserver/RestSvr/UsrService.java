@@ -47,7 +47,7 @@ public class UsrService {
 	    		ex.getMessage());
 	}
 	
-	@RequestMapping(value="/login", method=RequestMethod.POST)
+	@RequestMapping(value="/login", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage login(@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
 	{
@@ -75,7 +75,7 @@ public class UsrService {
 		}
 	}
 	
-	@RequestMapping(value="/addUser", method=RequestMethod.POST)
+	@RequestMapping(value="/addUser", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage addUser(@RequestParam("usrName") String usrName, 
 			@RequestParam("emailAddr") String emailAddr,
 			@RequestParam(value="phoneNumList", defaultValue="") String phoneNumList,
@@ -118,7 +118,7 @@ public class UsrService {
 				+ " verification code:" + verificationCode);
 	}
 	
-    @RequestMapping(value="/activateUser", method=RequestMethod.POST)
+    @RequestMapping(value="/activateUser", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage activateUser(@RequestParam("usrName") String usrName, 
 			@RequestParam("verificationCode") String code) throws Exception
 	{
@@ -150,7 +150,7 @@ public class UsrService {
 				"activate user successfully");
 	}
 	
-    @RequestMapping(value="/updateUserContactInfo", method=RequestMethod.POST)
+    @RequestMapping(value="/updateUserContactInfo", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage updateUserContactInfo(@RequestParam("usrName") String usrName, 
 			@RequestParam("emailAddr") String emailAddr,
 			@RequestParam("phoneNumList") String phoneNumList,
@@ -183,7 +183,7 @@ public class UsrService {
 				"update contact info successfully");
 	}
     
-    @RequestMapping(value="/updatePasswd", method=RequestMethod.POST)
+    @RequestMapping(value="/updatePasswd", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage updatePasswd(@RequestParam("usrName") String usrName, 
 			@RequestParam("oldPasswd") String oldPasswd,
 			@RequestParam("passwd") String passwd) throws Exception
@@ -204,7 +204,7 @@ public class UsrService {
 				"update password successfully");
 	}
     
-    @RequestMapping(value="/listServiceTypes", method=RequestMethod.POST)
+    @RequestMapping(value="/listServiceTypes", method= { RequestMethod.GET, RequestMethod.POST })
     public List<HandyMenSvrTypeInfo> listServiceTypes(@RequestParam("usrName") String usrName, 
 			@RequestParam("passwd") String passwd) throws Exception
 	{
@@ -229,7 +229,7 @@ public class UsrService {
 		}
 	}
     
-    @RequestMapping(value="/setOneServiceTypeInfo", method=RequestMethod.POST)
+    @RequestMapping(value="/setOneServiceTypeInfo", method= { RequestMethod.GET, RequestMethod.POST })
     public ResponseMessage setOneServiceTypeInfo(@RequestParam("usrName") String usrName, 
 			@RequestParam("passwd") String passwd,
 			@RequestParam("svrTypeId") int svrTypeId,
@@ -270,7 +270,7 @@ public class UsrService {
 		}
 	}
     
-    @RequestMapping(value="/addUserServiceInfo", method=RequestMethod.POST)
+    @RequestMapping(value="/addUserServiceInfo", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage addUserServiceInfo(
 			@RequestParam("usrName") String usrName, 
 			@RequestParam("type") String type,
@@ -314,7 +314,7 @@ public class UsrService {
 				"add user service info successfully");
 	}
     
-    @RequestMapping(value="/updateUserServiceInfo", method=RequestMethod.POST)
+    @RequestMapping(value="/updateUserServiceInfo", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage updateUserServiceInfo(
 			@RequestParam("usrName") String usrName, 
 			@RequestParam("type") String type,
@@ -358,7 +358,7 @@ public class UsrService {
 				"update user service info successfully");
 	}    
     
-    @RequestMapping(value="/deleteUserServiceInfo", method=RequestMethod.POST)
+    @RequestMapping(value="/deleteUserServiceInfo", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage deleteUserServiceInfo(
 			@RequestParam("usrName") String usrName, 
 			@RequestParam("type") String type,
@@ -390,7 +390,7 @@ public class UsrService {
 				"delete user service info successfully");
 	}
 	
-	@RequestMapping(value="/getUserProfile", method=RequestMethod.POST)
+	@RequestMapping(value="/getUserProfile", method= { RequestMethod.GET, RequestMethod.POST })
 	public HandyMenUserProfile getUserProfile(@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
 	{
@@ -407,7 +407,7 @@ public class UsrService {
 		}
 	}
 	
-	@RequestMapping(value="/deleteUser", method=RequestMethod.POST)
+	@RequestMapping(value="/deleteUser", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage deleteUser(@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
 	{
@@ -427,7 +427,7 @@ public class UsrService {
 				"delete user successfully");
 	}	
 	
-	@RequestMapping(value="/listAllServiceUsers", method=RequestMethod.POST)
+	@RequestMapping(value="/listAllServiceUsers", method= { RequestMethod.GET, RequestMethod.POST })
 	public List<HandyMenUserProfile> listAllServiceUsers(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
@@ -454,7 +454,7 @@ public class UsrService {
 		}
 	}
 	
-	@RequestMapping(value="/listServiceUsersByServiceType", method=RequestMethod.POST)
+	@RequestMapping(value="/listServiceUsersByServiceType", method= { RequestMethod.GET, RequestMethod.POST })
 	public List<HandyMenUserProfile> listServiceUsersByServiceType(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("type") String type,
@@ -486,7 +486,7 @@ public class UsrService {
 		}
 	}
 	
-	@RequestMapping(value="/addUserReview", method=RequestMethod.POST)
+	@RequestMapping(value="/addUserReview", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage addUserReview(@RequestParam("usrName") String usrName, 
 			@RequestParam("reviewUsrName") String reviewUsrName,
 			@RequestParam("svrType") String svrType,
@@ -551,7 +551,7 @@ public class UsrService {
 				"add user review successfully");
 	}
 	
-	@RequestMapping(value="/updateUserReview", method=RequestMethod.POST)
+	@RequestMapping(value="/updateUserReview", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage updateUserReview(@RequestParam("usrName") String usrName, 
 			@RequestParam("reviewUsrName") String reviewUsrName,
 			@RequestParam("svrType") String svrType,
@@ -598,7 +598,7 @@ public class UsrService {
 				"update user review successfully");
 	}
 	
-	@RequestMapping(value="/listReviewByUserName", method=RequestMethod.POST)
+	@RequestMapping(value="/listReviewByUserName", method= { RequestMethod.GET, RequestMethod.POST })
 	public List<HandyMenUserReview> listReviewByUserName(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
@@ -615,7 +615,7 @@ public class UsrService {
 		}
 	}
 	
-	@RequestMapping(value="/deleteUserReview", method=RequestMethod.POST)
+	@RequestMapping(value="/deleteUserReview", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage deleteUserReview(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("reviewUsrName") String reviewUsrName,
@@ -644,7 +644,7 @@ public class UsrService {
 	}
 	
 	
-	@RequestMapping(value="/uploadFile", method=RequestMethod.POST)
+	@RequestMapping(value="/uploadFile", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage uploadFile(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("file") MultipartFile file,
@@ -666,7 +666,7 @@ public class UsrService {
 				"upload file successfully");
 	}
 	
-	@RequestMapping(value="/addUserChatMessage", method=RequestMethod.POST)
+	@RequestMapping(value="/addUserChatMessage", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage addUserChatMessage(@RequestParam("usrName") String usrName, 
 			@RequestParam("peerUsrName") String peerUsrName,
 			@RequestParam("timeStamp") String timeStamp,
@@ -720,7 +720,7 @@ public class UsrService {
 				"add user chat message successfully");
 	}
 	
-	@RequestMapping(value="/deleteUserChatMessage", method=RequestMethod.POST)
+	@RequestMapping(value="/deleteUserChatMessage", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage deleteUserChatMessage(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("peerUsrName") String peerUsrName,
@@ -749,7 +749,7 @@ public class UsrService {
 				"delete user chat message successfully");
 	}
 	
-	@RequestMapping(value="/listUserChatMessageByUserName", method=RequestMethod.POST)
+	@RequestMapping(value="/listUserChatMessageByUserName", method= { RequestMethod.GET, RequestMethod.POST })
 	public List<HandyMenChatMessage> listUserChatMessageByUserName(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
@@ -766,7 +766,7 @@ public class UsrService {
 		}
 	}
 	
-    @RequestMapping(value="/listNotificationTypes", method=RequestMethod.POST)
+    @RequestMapping(value="/listNotificationTypes", method= { RequestMethod.GET, RequestMethod.POST })
     public ResponseMessage listNotificationTypes(
     		@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
@@ -785,7 +785,7 @@ public class UsrService {
     			HandyMenNotification.TypeEnum.getTypeStr());
 	}
 	
-	@RequestMapping(value="/deleteUserNotification", method=RequestMethod.POST)
+	@RequestMapping(value="/deleteUserNotification", method= { RequestMethod.GET, RequestMethod.POST })
 	public ResponseMessage deleteUserNotification(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("notificationType") String notificationType,
@@ -813,7 +813,7 @@ public class UsrService {
 				"delete user notification successfully");
 	}
 	
-	@RequestMapping(value="/listUserNotificationByUserName", method=RequestMethod.POST)
+	@RequestMapping(value="/listUserNotificationByUserName", method= { RequestMethod.GET, RequestMethod.POST })
 	public List<HandyMenNotification> listUserNotificationByUserName(
 			@RequestParam("usrName") String usrName,
 			@RequestParam("passwd") String passwd) throws Exception
